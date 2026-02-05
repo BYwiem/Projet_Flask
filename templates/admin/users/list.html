@@ -105,6 +105,7 @@
                                     </a>
                                     {% if user.role != 'super_admin' or current_user.id == user.id %}
                                     <form action="{{ url_for('admin.toggle_user_status', id=user.id) }}" method="POST" class="d-inline">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                                         <button type="submit" class="btn btn-outline-{{ 'warning' if user.is_active else 'success' }}" title="{{ 'Désactiver' if user.is_active else 'Activer' }}">
                                             <i class="fas fa-{{ 'ban' if user.is_active else 'check' }}"></i>
                                         </button>
