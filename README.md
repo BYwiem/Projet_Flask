@@ -58,9 +58,9 @@ A comprehensive Flask-based school management application for tracking student a
 | Role | Email | Password |
 |------|-------|----------|
 | Super Admin | admin@gestionscol.tn | admin123 |
-| Admin Staff | admin@test.com | Test123! |
-| Professor | professeur@test.com | Test123! |
-| Student | etudiant@test.com | Test123! |
+| Admin Staff | admin@test.com | Test1234 |
+| Professor | professeur@test.com | Test1234 |
+| Student | etudiant@test.com | Test1234 |
 
 ## 📁 Project Structure
 
@@ -90,10 +90,4 @@ A comprehensive Flask-based school management application for tracking student a
 - **Database**: SQLite
 - **Authentication**: Flask-Login with password hashing
 
-## 📝 License
 
-This project is for educational purposes.
-
-## 👨‍💻 Author
-
-Wiem Ben Younes
