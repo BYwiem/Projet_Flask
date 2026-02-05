@@ -1,0 +1,137 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Configuration des seuils - Gestion Scolaire{% endblock %}
+
+{% block admin_content %}
+<div class="py-4">
+    <div class="page-header">
+        <h1><i class="fas fa-cog me-2"></i>Configuration des seuils</h1>
+        <p class="text-muted">Définir les seuils d'absence pour les professeurs et les étudiants</p>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <!-- Professor Global Threshold -->
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-chalkboard-teacher me-2"></i>Seuil global professeurs</h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted small mb-3">
+                        Définir le nombre maximum de jours et heures d'absence non justifiée autorisées pour les professeurs.
+                    </p>
+                    
+                    {% set prof_setting = settings | selectattr('setting_type', 'equalto', 'professor_global') | first %}
+                    
+                    <form method="POST" action="{{ url_for('admin.update_threshold') }}">
+                        <input type="hidden" name="setting_type" value="professor_global">
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Jours</label>
+                                <input type="number" name="threshold_days" class="form-control" min="0" 
+                                    value="{{ prof_setting.threshold_days if prof_setting else 5 }}">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Heures</label>
+                                <input type="number" name="threshold_hours" class="form-control" min="0" max="23" 
+                                    value="{{ prof_setting.threshold_hours if prof_setting else 0 }}">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Pourcentage d'alerte</label>
+                            <div class="input-group">
+                                <input type="number" name="warning_percentage" class="form-control" min="10" max="100" 
+                                    value="{{ prof_setting.warning_percentage if prof_setting else 50 }}">
+                                <span class="input-group-text">%</span>
+                            </div>
+                            <small class="text-muted">Une alerte sera envoyée quand ce pourcentage est atteint</small>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Enregistrer
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-6 mb-4">
+            <!-- Student Module Thresholds Info -->
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-user-graduate me-2"></i>Seuils étudiants par module</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info mb-3">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Note:</strong> Les seuils d'absence pour les étudiants sont définis individuellement pour chaque module lors de la création ou modification du module.
+                    </div>
+                    
+                    <p class="text-muted small">
+                        Pour modifier le seuil d'absence d'un module, allez dans:
+                    </p>
+                    <ol class="text-muted small">
+                        <li><a href="{{ url_for('admin.list_modules') }}">Modules</a></li>
+                        <li>Cliquez sur "Modifier" pour le module souhaité</li>
+                        <li>Modifiez le "Seuil d'absence" (heures et minutes)</li>
+                    </ol>
+                    
+                    <a href="{{ url_for('admin.list_modules') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-book me-1"></i>Gérer les modules
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-book me-2"></i>Aperçu des seuils par module</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Module</th>
+                                    <th>Heures totales</th>
+                                    <th>Seuil d'absence</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for module in modules %}
+                                <tr>
+                                    <td><span class="badge bg-secondary">{{ module.code }}</span></td>
+                                    <td>{{ module.name }}</td>
+                                    <td>{{ module.total_hours }}h</td>
+                                    <td>
+                                        {% set hours = module.absence_threshold | int %}
+                                        {% set minutes = ((module.absence_threshold - hours) * 60) | int %}
+                                        {{ hours }}h{% if minutes > 0 %} {{ minutes }}min{% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('admin.edit_module', id=module.id) }}" class="btn btn-sm btn-outline-warning">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">Aucun module trouvé</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock admin_content %}

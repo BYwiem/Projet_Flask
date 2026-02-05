@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block title %}Bienvenue - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section py-5" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 80vh; display: flex; align-items: center;">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 text-white mb-5 mb-lg-0">
+                <h1 class="display-4 fw-bold mb-4">
+                    Système de Gestion des Absences Scolaires
+                </h1>
+                <p class="lead mb-4">
+                    Une plateforme moderne pour gérer efficacement les absences des étudiants et professeurs, 
+                    avec des notifications automatiques et des tableaux de bord personnalisés.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="{{ url_for('auth.login') }}" class="btn btn-light btn-lg px-4">
+                        <i class="fas fa-sign-in-alt me-2"></i>Se connecter
+                    </a>
+                    <a href="#features" class="btn btn-outline-light btn-lg px-4">
+                        <i class="fas fa-info-circle me-2"></i>En savoir plus
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <img src="https://www.svgrepo.com/show/325801/graduation-student.svg" alt="Illustration" class="img-fluid" style="max-height: 450px;">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Fonctionnalités Principales</h2>
+            <p class="text-muted">Tout ce dont vous avez besoin pour gérer efficacement les absences</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 text-center p-4">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <span class="d-inline-block p-3 rounded-circle" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                <i class="fas fa-users fa-2x text-white"></i>
+                            </span>
+                        </div>
+                        <h5 class="card-title">Gestion des Utilisateurs</h5>
+                        <p class="card-text text-muted">
+                            4 rôles distincts : Super Admin, Personnel, Professeur et Étudiant avec permissions spécifiques.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 text-center p-4">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <span class="d-inline-block p-3 rounded-circle" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                                <i class="fas fa-calendar-times fa-2x text-white"></i>
+                            </span>
+                        </div>
+                        <h5 class="card-title">Suivi des Absences</h5>
+                        <p class="card-text text-muted">
+                            Enregistrement et suivi détaillé des absences par module avec calcul automatique des taux.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 text-center p-4">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <span class="d-inline-block p-3 rounded-circle" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                <i class="fas fa-bell fa-2x text-white"></i>
+                            </span>
+                        </div>
+                        <h5 class="card-title">Notifications Automatiques</h5>
+                        <p class="card-text text-muted">
+                            Alertes email automatiques lorsque 50% du seuil est atteint ou dépassé.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 text-center p-4">
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <span class="d-inline-block p-3 rounded-circle" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                <i class="fas fa-chart-line fa-2x text-white"></i>
+                            </span>
+                        </div>
+                        <h5 class="card-title">Tableaux de Bord</h5>
+                        <p class="card-text text-muted">
+                            Visualisation claire des statistiques et indicateurs pour chaque type d'utilisateur.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Roles Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold">Accès par Rôle</h2>
+            <p class="text-muted">Chaque utilisateur dispose d'un accès personnalisé selon son rôle</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-header bg-danger text-white text-center py-3">
+                        <i class="fas fa-crown fa-2x mb-2"></i>
+                        <h5 class="mb-0">Super Admin</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Créer tous les utilisateurs</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Accès complet au système</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Configuration globale</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Gestion des rôles</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-header bg-warning text-dark text-center py-3">
+                        <i class="fas fa-user-tie fa-2x mb-2"></i>
+                        <h5 class="mb-0">Personnel Admin</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Gérer étudiants et profs</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Enregistrer les absences</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Configurer les seuils</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Envoyer des rappels</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-header bg-info text-white text-center py-3">
+                        <i class="fas fa-chalkboard-teacher fa-2x mb-2"></i>
+                        <h5 class="mb-0">Professeur</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Voir ses absences</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Voir ses modules</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Consulter ses étudiants</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Taux par étudiant</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-3">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-header bg-success text-white text-center py-3">
+                        <i class="fas fa-user-graduate fa-2x mb-2"></i>
+                        <h5 class="mb-0">Étudiant</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Voir ses absences</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Taux par module</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Heures restantes</li>
+                            <li class="mb-2"><i class="fas fa-check text-success me-2"></i>Alertes personnelles</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5" style="background: linear-gradient(135deg, #1f2937 0%, #374151 100%);">
+    <div class="container text-center text-white">
+        <h2 class="fw-bold mb-3">Prêt à commencer ?</h2>
+        <p class="lead mb-4">Connectez-vous pour accéder à votre tableau de bord personnalisé</p>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-light btn-lg px-5">
+            <i class="fas fa-sign-in-alt me-2"></i>Se connecter maintenant
+        </a>
+    </div>
+</section>
+{% endblock %}

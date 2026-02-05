@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Créer un personnel - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="page-header">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Tableau de bord</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('admin.list_users') }}">Utilisateurs</a></li>
+                <li class="breadcrumb-item active">Créer personnel</li>
+            </ol>
+        </nav>
+        <h1><i class="fas fa-user-tie me-2"></i>Créer un personnel administratif</h1>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body p-4">
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        
+                        <h5 class="mb-3"><i class="fas fa-user me-2"></i>Informations personnelles</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Prénom *</label>
+                                {{ form.first_name(class="form-control", placeholder="Prénom") }}
+                                {% if form.first_name.errors %}
+                                    <div class="text-danger small">{{ form.first_name.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nom *</label>
+                                {{ form.last_name(class="form-control", placeholder="Nom") }}
+                                {% if form.last_name.errors %}
+                                    <div class="text-danger small">{{ form.last_name.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email *</label>
+                                {{ form.email(class="form-control", placeholder="email@exemple.com") }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger small">{{ form.email.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Téléphone</label>
+                                {{ form.phone(class="form-control", placeholder="+216 XX XXX XXX") }}
+                            </div>
+                        </div>
+                        
+                        <h5 class="mb-3"><i class="fas fa-briefcase me-2"></i>Informations professionnelles</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Matricule *</label>
+                                {{ form.employee_id(class="form-control", placeholder="STAFF/2024/001") }}
+                                {% if form.employee_id.errors %}
+                                    <div class="text-danger small">{{ form.employee_id.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Service</label>
+                                {{ form.department(class="form-control", placeholder="Scolarité") }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Poste</label>
+                                {{ form.position(class="form-control", placeholder="Agent administratif") }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Bureau</label>
+                                {{ form.office(class="form-control", placeholder="Bureau 101") }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Date d'embauche</label>
+                                {{ form.hire_date(class="form-control", type="date") }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Photo</label>
+                                {{ form.photo(class="form-control", accept="image/*") }}
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Un mot de passe sera généré automatiquement et envoyé par email.
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Créer le compte
+                            </button>
+                            <a href="{{ url_for('admin.list_users') }}" class="btn btn-outline-secondary">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

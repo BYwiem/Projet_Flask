@@ -1,0 +1,147 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}{{ major.name }} - Gestion Scolaire{% endblock %}
+
+{% block admin_content %}
+<div class="py-4">
+    <div class="page-header">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('admin.list_majors') }}">Filières</a></li>
+                <li class="breadcrumb-item active">{{ major.name }}</li>
+            </ol>
+        </nav>
+        <div class="d-flex gap-2">
+            <a href="{{ url_for('admin.edit_major', id=major.id) }}" class="btn btn-primary">
+                <i class="fas fa-edit me-1"></i>Modifier
+            </a>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="card text-center">
+                <div class="card-body p-4">
+                    <div class="avatar-placeholder mx-auto mb-3" style="width: 100px; height: 100px; font-size: 2.5rem;">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h4>{{ major.name }}</h4>
+                    <p class="text-muted">{{ major.code }}</p>
+                    <span class="badge {% if major.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                        {{ 'Active' if major.is_active else 'Inactive' }}
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Stats Card -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6">
+                            <h4 class="text-primary">{{ major.classes | length }}</h4>
+                            <small class="text-muted">Classes</small>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-success">{{ major.modules | length }}</h4>
+                            <small class="text-muted">Modules</small>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="text-center">
+                        <h4 class="text-info">{{ major.students | length }}</h4>
+                        <small class="text-muted">Étudiants</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informations</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Code</label>
+                            <p>{{ major.code }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Nombre de semestres</label>
+                            <p>{{ major.total_semesters }}</p>
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="text-muted small">Description</label>
+                            <p>{{ major.description or 'Pas de description' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Classes Section -->
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-school me-2"></i>Classes</h5>
+                </div>
+                <div class="card-body">
+                    {% if major.classes %}
+                        <div class="row g-3">
+                            {% for classe in major.classes %}
+                            <div class="col-md-6">
+                                <div class="border rounded p-3">
+                                    <strong>{{ classe.name }}</strong>
+                                    <p class="small text-muted mb-0">{{ classe.code }} - {{ classe.students | length }} étudiants</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-3">Aucune classe pour cette filière</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Modules Section -->
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-book me-2"></i>Modules / Cours</h5>
+                </div>
+                <div class="card-body">
+                    {% if major.modules %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Code</th>
+                                        <th>Nom</th>
+                                        <th>Semestre</th>
+                                        <th>Crédits</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for mm in major.modules %}
+                                    <tr>
+                                        <td>{{ mm.module.code }}</td>
+                                        <td>{{ mm.module.name }}</td>
+                                        <td><span class="badge bg-info">S{{ mm.semester }}</span></td>
+                                        <td>{{ mm.module.credits }}</td>
+                                        <td>
+                                            <a href="{{ url_for('admin.view_module', id=mm.module.id) }}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-3">Aucun module associé à cette filière</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock admin_content %}

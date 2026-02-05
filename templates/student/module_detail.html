@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}{{ module.name }} - Détails{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-2 sidebar d-none d-lg-block">
+            <nav class="nav flex-column">
+                <a class="nav-link" href="{{ url_for('student.dashboard') }}">
+                    <i class="fas fa-tachometer-alt"></i>Tableau de bord
+                </a>
+                <a class="nav-link" href="{{ url_for('student.my_absences') }}">
+                    <i class="fas fa-calendar-times"></i>Mes absences
+                </a>
+                <a class="nav-link active" href="{{ url_for('student.my_modules') }}">
+                    <i class="fas fa-book"></i>Mes modules
+                </a>
+                <a class="nav-link" href="{{ url_for('student.academic_info') }}">
+                    <i class="fas fa-info-circle"></i>Info académique
+                </a>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-10">
+            <div class="page-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-book me-2"></i>{{ module.name }}</h1>
+                    <p class="text-muted">{{ module.code }} - Détails des absences</p>
+                </div>
+                <a href="{{ url_for('student.my_modules') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Retour
+                </a>
+            </div>
+            
+            <!-- Module Stats -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body text-center">
+                            <h3>{{ total_hours }}h</h3>
+                            <p class="mb-0">Total absences</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card {% if rate >= 100 %}bg-danger{% elif rate >= 50 %}bg-warning{% else %}bg-success{% endif %} text-white">
+                        <div class="card-body text-center">
+                            <h3>{{ rate|round(1) }}%</h3>
+                            <p class="mb-0">Taux d'absence</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body text-center">
+                            <h3>{{ module.absence_threshold }}h</h3>
+                            <p class="mb-0">Seuil maximum</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card {% if remaining_hours <= 2 %}bg-danger{% elif remaining_hours <= 5 %}bg-warning{% else %}bg-success{% endif %} text-white">
+                        <div class="card-body text-center">
+                            <h3>{{ remaining_hours }}h</h3>
+                            <p class="mb-0">Heures restantes</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Status Alert -->
+            {% if status == 'exceeded' %}
+            <div class="alert alert-danger mb-4">
+                <i class="fas fa-exclamation-circle me-2"></i>
+                <strong>Seuil dépassé!</strong> Vous avez dépassé le seuil d'absence autorisé pour ce module.
+            </div>
+            {% elif status == 'warning' %}
+            <div class="alert alert-warning mb-4">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <strong>Attention!</strong> Vous approchez du seuil d'absence maximum. Il vous reste {{ remaining_hours }}h.
+            </div>
+            {% endif %}
+            
+            <!-- Progress Bar -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h6>Progression des absences</h6>
+                    <div class="progress" style="height: 30px;">
+                        <div class="progress-bar {% if rate >= 100 %}bg-danger{% elif rate >= 50 %}bg-warning{% else %}bg-success{% endif %}" 
+                             style="width: {{ [rate, 100] | min }}%">
+                            {{ total_hours }}h / {{ module.absence_threshold }}h
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Absence List -->
+            <div class="card">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Historique des absences</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Heures</th>
+                                    <th>Motif</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for absence in absences %}
+                                <tr>
+                                    <td>{{ absence.date.strftime('%d/%m/%Y') }}</td>
+                                    <td>{{ absence.hours }}h</td>
+                                    <td>{{ absence.reason or '-' }}</td>
+                                    <td>
+                                        {% if absence.is_justified %}
+                                            <span class="badge bg-success">Justifiée</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Non justifiée</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">
+                                        Aucune absence enregistrée pour ce module
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

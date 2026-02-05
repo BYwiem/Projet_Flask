@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}Absences étudiants - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="fas fa-calendar-times me-2"></i>Absences des étudiants</h1>
+            <p class="text-muted">Gérer les absences des étudiants</p>
+        </div>
+        <a href="{{ url_for('admin.create_student_absence') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>Enregistrer une absence
+        </a>
+    </div>
+    
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">Étudiant</label>
+                    <select name="student_id" class="form-select">
+                        <option value="">Tous</option>
+                        {% for student in students %}
+                        <option value="{{ student.id }}" {% if student_filter == student.id %}selected{% endif %}>{{ student.first_name }} {{ student.last_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Module</label>
+                    <select name="module_id" class="form-select">
+                        <option value="">Tous</option>
+                        {% for module in modules %}
+                        <option value="{{ module.id }}" {% if module_filter == module.id %}selected{% endif %}>{{ module.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Date début</label>
+                    <input type="date" name="start_date" class="form-control" value="{{ start_date }}">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">Date fin</label>
+                    <input type="date" name="end_date" class="form-control" value="{{ end_date }}">
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-filter me-1"></i>Filtrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Étudiant</th>
+                            <th>Classe</th>
+                            <th>Module</th>
+                            <th>Heures</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for absence in absences.items %}
+                        <tr>
+                            <td>{{ absence.date.strftime('%d/%m/%Y') }}</td>
+                            <td>{{ absence.student.first_name }} {{ absence.student.last_name }}</td>
+                            <td>{{ absence.student.classe.name if absence.student.classe else 'N/A' }}</td>
+                            <td>{{ absence.module.name }}</td>
+                            <td>{{ absence.hours }}h</td>
+                            <td>
+                                {% if absence.is_justified %}
+                                    <span class="badge bg-success">Justifiée</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Non justifiée</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <form action="{{ url_for('admin.toggle_student_absence_justified', absence_id=absence.id) }}" method="POST" style="display:inline;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-outline-{{ 'warning' if absence.is_justified else 'success' }} btn-sm" title="{{ 'Marquer non justifiée' if absence.is_justified else 'Marquer justifiée' }}">
+                                            <i class="fas fa-{{ 'times' if absence.is_justified else 'check' }}"></i>
+                                        </button>
+                                    </form>
+                                    <form action="{{ url_for('admin.delete_student_absence', absence_id=absence.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cette absence?');">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-outline-danger btn-sm" title="Supprimer">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">Aucune absence trouvée</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    {% if absences.pages > 1 %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if absences.has_prev %}
+            <li class="page-item"><a class="page-link" href="?page={{ absences.prev_num }}">Précédent</a></li>
+            {% endif %}
+            {% for page in absences.iter_pages() %}
+                {% if page %}
+                <li class="page-item {% if page == absences.page %}active{% endif %}">
+                    <a class="page-link" href="?page={{ page }}">{{ page }}</a>
+                </li>
+                {% endif %}
+            {% endfor %}
+            {% if absences.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ absences.next_num }}">Suivant</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

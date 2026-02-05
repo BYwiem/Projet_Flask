@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}Liste des Étudiants{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-user-graduate"></i> Liste des Étudiants</span>
+        <a href="{{ url_for('add_etudiant') }}" class="btn btn-light btn-sm"><i class="fas fa-plus"></i> Ajouter</a>
+    </div>
+    <div class="card-body">
+        <p class="text-muted"><i class="fas fa-info-circle"></i> Cliquez sur un étudiant pour voir ses absences</p>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr><th>Photo</th><th>NCE</th><th>Nom</th><th>Prénom</th><th>Date Nais.</th><th>Lieu</th><th>Classe</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                    {% for etudiant in etudiants %}
+                    <tr class="clickable-row" onclick="window.location='{{ url_for('etudiant_detail', nce=etudiant.NCE) }}'">
+                        <td onclick="event.stopPropagation();">
+                            {% if etudiant.photo %}
+                            <img src="{{ url_for('static', filename='image/' + etudiant.photo) }}" 
+                                 alt="Photo" class="rounded-circle" 
+                                 style="width: 40px; height: 40px; object-fit: cover;">
+                            {% else %}
+                            <span class="badge bg-secondary"><i class="fas fa-user"></i></span>
+                            {% endif %}
+                        </td>
+                        <td><span class="badge bg-success">{{ etudiant.NCE }}</span></td>
+                        <td>{{ etudiant.Nom }}</td>
+                        <td>{{ etudiant.Prenom }}</td>
+                        <td>{{ etudiant.DateNais.strftime('%d/%m/%Y') if etudiant.DateNais else '-' }}</td>
+                        <td>{{ etudiant.LieuNais or '-' }}</td>
+                        <td><span class="badge bg-primary">{{ etudiant.CodClass }}</span></td>
+                        <td onclick="event.stopPropagation();">
+                            <a href="{{ url_for('etudiant_detail', nce=etudiant.NCE) }}" class="btn btn-info btn-sm" title="Voir absences">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{{ url_for('edit_etudiant', nce=etudiant.NCE) }}" class="btn btn-primary btn-sm" title="Modifier">
+                                <i class="fas fa-pen"></i>
+                            </a>
+                            <a href="{{ url_for('delete_etudiant', nce=etudiant.NCE) }}" class="btn btn-danger btn-sm" 
+                               onclick="return confirm('Êtes-vous sûr de vouloir supprimer cet étudiant?')" title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="8" class="text-center text-muted">Aucun étudiant</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

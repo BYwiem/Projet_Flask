@@ -1,0 +1,44 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Liste des filières - Gestion Scolaire{% endblock %}
+
+{% block admin_content %}
+<div class="py-4">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="fas fa-graduation-cap me-2"></i>Filières</h1>
+            <p class="text-muted">Gérer les filières d'études</p>
+        </div>
+        <a href="{{ url_for('admin.create_major') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>Ajouter une filière
+        </a>
+    </div>
+    
+    <div class="row g-4">
+        {% for major in majors %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ major.name }}</h5>
+                    <p class="card-text text-muted">{{ major.code }}</p>
+                    <p class="small mb-2">{{ major.description or 'Pas de description' }}</p>
+                    <p class="small">
+                        <i class="fas fa-clock me-1"></i>{{ major.total_semesters }} semestres
+                    </p>
+                    <span class="badge {% if major.is_active %}bg-success{% else %}bg-secondary{% endif %}">
+                        {{ 'Actif' if major.is_active else 'Inactif' }}
+                    </span>
+                </div>
+                <div class="card-footer bg-white">
+                    <a href="{{ url_for('admin.view_major', id=major.id) }}" class="btn btn-sm btn-outline-primary">Voir modules</a>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="col-12">
+            <div class="alert alert-info">Aucune filière trouvée</div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock admin_content %}

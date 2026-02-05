@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-2 sidebar d-none d-lg-block">
+            <nav class="nav flex-column">
+                <a class="nav-link {% if request.endpoint == 'admin.super_admin_dashboard' or request.endpoint == 'admin.staff_dashboard' %}active{% endif %}" href="{{ url_for('admin.super_admin_dashboard') if current_user.is_super_admin() else url_for('admin.staff_dashboard') }}">
+                    <i class="fas fa-tachometer-alt"></i>Tableau de bord
+                </a>
+                {% if current_user.is_super_admin() %}
+                <a class="nav-link {% if 'users' in request.endpoint %}active{% endif %}" href="{{ url_for('admin.list_users') }}">
+                    <i class="fas fa-users"></i>Utilisateurs
+                </a>
+                {% endif %}
+                <a class="nav-link {% if 'student' in request.endpoint and 'absence' not in request.endpoint %}active{% endif %}" href="{{ url_for('admin.list_students') }}">
+                    <i class="fas fa-user-graduate"></i>Étudiants
+                </a>
+                <a class="nav-link {% if 'professor' in request.endpoint and 'absence' not in request.endpoint %}active{% endif %}" href="{{ url_for('admin.list_professors') }}">
+                    <i class="fas fa-chalkboard-teacher"></i>Professeurs
+                </a>
+                <a class="nav-link {% if 'class' in request.endpoint %}active{% endif %}" href="{{ url_for('admin.list_classes') }}">
+                    <i class="fas fa-school"></i>Classes
+                </a>
+                <a class="nav-link {% if 'module' in request.endpoint %}active{% endif %}" href="{{ url_for('admin.list_modules') }}">
+                    <i class="fas fa-book"></i>Modules
+                </a>
+                <a class="nav-link {% if 'major' in request.endpoint %}active{% endif %}" href="{{ url_for('admin.list_majors') }}">
+                    <i class="fas fa-graduation-cap"></i>Filières
+                </a>
+                <a class="nav-link {% if 'absence' in request.endpoint %}active{% endif %}" href="{{ url_for('admin.list_student_absences') }}">
+                    <i class="fas fa-calendar-times"></i>Absences
+                </a>
+                <a class="nav-link {% if 'threshold' in request.endpoint %}active{% endif %}" href="{{ url_for('admin.threshold_settings') }}">
+                    <i class="fas fa-cog"></i>Seuils
+                </a>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-10">
+            {% block admin_content %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}

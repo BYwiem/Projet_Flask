@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ etudiant.Nom }} {{ etudiant.Prenom }} - Absences{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <a href="{{ url_for('list_etudiants') }}" class="btn btn-secondary mb-3">
+            <i class="fas fa-arrow-left"></i> Retour à la liste
+        </a>
+        <a href="{{ url_for('edit_etudiant', nce=etudiant.NCE) }}" class="btn btn-primary mb-3 ms-2">
+            <i class="fas fa-pen"></i> Modifier
+        </a>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Student Photo & Info -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-user-graduate"></i> Informations Étudiant</h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    {% if etudiant.photo %}
+                    <img src="{{ url_for('static', filename='image/' + etudiant.photo) }}" 
+                         alt="Photo de {{ etudiant.Nom }}" 
+                         class="img-thumbnail rounded-circle"
+                         style="width: 150px; height: 150px; object-fit: cover;">
+                    {% else %}
+                    <div class="bg-secondary text-white rounded-circle d-inline-flex justify-content-center align-items-center"
+                         style="width: 150px; height: 150px; font-size: 3rem;">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    {% endif %}
+                </div>
+                <table class="table table-borderless">
+                    <tr><th width="40%">NCE :</th><td><span class="badge bg-success fs-6">{{ etudiant.NCE }}</span></td></tr>
+                    <tr><th>Nom :</th><td><strong>{{ etudiant.Nom }}</strong></td></tr>
+                    <tr><th>Prénom :</th><td><strong>{{ etudiant.Prenom }}</strong></td></tr>
+                    <tr><th>Date de naissance :</th><td>{{ etudiant.DateNais.strftime('%d/%m/%Y') if etudiant.DateNais else '-' }}</td></tr>
+                    <tr><th>Lieu de naissance :</th><td>{{ etudiant.LieuNais or '-' }}</td></tr>
+                    <tr><th>Statut :</th><td>
+                        {% if etudiant.is_active %}
+                        <span class="badge bg-success">Actif</span>
+                        {% else %}
+                        <span class="badge bg-danger">Inactif</span>
+                        {% endif %}
+                    </td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-school"></i> Classe</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-borderless">
+                    <tr><th width="40%">Code :</th><td><span class="badge bg-primary fs-6">{{ classe.CodClass }}</span></td></tr>
+                    <tr><th>Nom :</th><td><strong>{{ classe.NomClass }}</strong></td></tr>
+                    <tr><th>Effectif :</th><td>{{ classe.NbrEtud }} étudiants</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Absences Table -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-warning">
+                <h5 class="mb-0"><i class="fas fa-calendar-times"></i> Liste des Absences</h5>
+            </div>
+            <div class="card-body">
+                {% if absences %}
+                <div class="table-responsive">
+                    <table class="table table-striped table-bordered table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th><i class="fas fa-calendar"></i> Date Absence</th>
+                                <th><i class="fas fa-book"></i> CodMat</th>
+                                <th><i class="fas fa-clock"></i> NHA</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for absence in absences %}
+                            <tr>
+                                <td>{{ absence.DateA.strftime('%d-%m-%Y') }}</td>
+                                <td><span class="badge bg-secondary">{{ absence.CodMat }}</span></td>
+                                <td><span class="badge bg-danger">{{ "%.2f"|format(absence.NHA) }}</span></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-warning">
+                                <td colspan="2" class="text-end"><strong>Total des heures d'absence :</strong></td>
+                                <td><strong class="text-danger fs-5">{{ "%.2f"|format(total_heures) }} heures</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                {% else %}
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i> Aucune absence enregistrée pour cet étudiant.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

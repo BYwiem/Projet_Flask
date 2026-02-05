@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}Tableau de bord Professeur - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-2 sidebar d-none d-lg-block">
+            <nav class="nav flex-column">
+                <a class="nav-link active" href="{{ url_for('professor.dashboard') }}">
+                    <i class="fas fa-tachometer-alt"></i>Tableau de bord
+                </a>
+                <a class="nav-link" href="{{ url_for('professor.my_absences') }}">
+                    <i class="fas fa-calendar-times"></i>Mes absences
+                </a>
+                <a class="nav-link" href="{{ url_for('professor.my_modules') }}">
+                    <i class="fas fa-book"></i>Mes modules
+                </a>
+                <a class="nav-link" href="{{ url_for('professor.my_classes') }}">
+                    <i class="fas fa-users"></i>Mes classes
+                </a>
+                <a class="nav-link" href="{{ url_for('main.profile') }}">
+                    <i class="fas fa-user"></i>Mon profil
+                </a>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-10">
+            <div class="page-header">
+                <h1><i class="fas fa-chalkboard-teacher text-info me-2"></i>Tableau de bord Professeur</h1>
+                <p class="text-muted">Bienvenue, {{ current_user.full_name }}</p>
+            </div>
+            
+            <!-- Stats Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card primary">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value">{{ stats.total_modules }}</div>
+                                <div class="stat-label">Modules enseignés</div>
+                            </div>
+                            <i class="fas fa-book stat-icon"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card success">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value">{{ stats.total_classes }}</div>
+                                <div class="stat-label">Classes</div>
+                            </div>
+                            <i class="fas fa-users stat-icon"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card warning">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value">{{ stats.total_students }}</div>
+                                <div class="stat-label">Étudiants</div>
+                            </div>
+                            <i class="fas fa-user-graduate stat-icon"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card info">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value">{{ stats.my_absences }}</div>
+                                <div class="stat-label">Mes absences (h)</div>
+                            </div>
+                            <i class="fas fa-calendar-times stat-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <!-- My Modules -->
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                            <h5 class="mb-0"><i class="fas fa-book me-2"></i>Mes modules</h5>
+                            <a href="{{ url_for('professor.my_modules') }}" class="btn btn-sm btn-outline-primary">Voir tout</a>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="list-group list-group-flush">
+                                {% for module in modules %}
+                                <a href="{{ url_for('professor.module_students', module_id=module.id) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ module.name }}</strong>
+                                        <p class="small text-muted mb-0">{{ module.code }} - {{ module.total_hours }}h</p>
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">{{ module.credits }} crédits</span>
+                                </a>
+                                {% else %}
+                                <div class="list-group-item text-center text-muted py-4">Aucun module assigné</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- My Classes -->
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                            <h5 class="mb-0"><i class="fas fa-users me-2"></i>Mes classes</h5>
+                            <a href="{{ url_for('professor.my_classes') }}" class="btn btn-sm btn-outline-primary">Voir tout</a>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="list-group list-group-flush">
+                                {% for classe in classes %}
+                                <a href="{{ url_for('professor.class_students', class_id=classe.id) }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ classe.name }}</strong>
+                                        <p class="small text-muted mb-0">{{ classe.major.name if classe.major else 'N/A' }}</p>
+                                    </div>
+                                    <span class="badge bg-success rounded-pill">{{ classe.student_count }} étudiants</span>
+                                </a>
+                                {% else %}
+                                <div class="list-group-item text-center text-muted py-4">Aucune classe assignée</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- My Recent Absences -->
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                            <h5 class="mb-0"><i class="fas fa-calendar-times me-2"></i>Mes absences récentes</h5>
+                            <a href="{{ url_for('professor.my_absences') }}" class="btn btn-sm btn-outline-primary">Voir tout</a>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Date</th>
+                                            <th>Module</th>
+                                            <th>Classe</th>
+                                            <th>Heures</th>
+                                            <th>Motif</th>
+                                            <th>Statut</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for absence in my_absences %}
+                                        <tr>
+                                            <td>{{ absence.date.strftime('%d/%m/%Y') }}</td>
+                                            <td>{{ absence.module.name }}</td>
+                                            <td>{{ absence.classe.name if absence.classe else 'N/A' }}</td>
+                                            <td>{{ absence.hours }}h</td>
+                                            <td>{{ absence.reason or '-' }}</td>
+                                            <td>
+                                                {% if absence.is_justified %}
+                                                    <span class="badge bg-success">Justifiée</span>
+                                                {% else %}
+                                                    <span class="badge bg-warning">Non justifiée</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% else %}
+                                        <tr>
+                                            <td colspan="6" class="text-center py-4 text-muted">Aucune absence enregistrée</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

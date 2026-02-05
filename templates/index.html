@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+
+{% block title %}Accueil - Gestion des Absences{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="jumbotron bg-white p-5 rounded shadow-sm">
+            <h1 class="display-4"><i class="fas fa-graduation-cap text-primary"></i> Gestion des Absences</h1>
+            <p class="lead">Application de gestion des absences pour établissements scolaires</p>
+            <hr class="my-4">
+            <p>Cliquez sur un étudiant dans la liste pour voir ses absences.</p>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-3 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div><h4 class="mb-0">{{ stats.classes }}</h4><p class="mb-0">Classes</p></div>
+                    <i class="fas fa-school fa-2x"></i>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('list_classes') }}" class="text-white">Voir <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div><h4 class="mb-0">{{ stats.etudiants }}</h4><p class="mb-0">Étudiants</p></div>
+                    <i class="fas fa-user-graduate fa-2x"></i>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('list_etudiants') }}" class="text-white">Voir <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div><h4 class="mb-0">{{ stats.matieres }}</h4><p class="mb-0">Matières</p></div>
+                    <i class="fas fa-book fa-2x"></i>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('list_matieres') }}" class="text-white">Voir <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-warning text-dark">
+            <div class="card-body">
+                <div class="d-flex justify-content-between">
+                    <div><h4 class="mb-0">{{ stats.absences }}</h4><p class="mb-0">Absences</p></div>
+                    <i class="fas fa-calendar-times fa-2x"></i>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('list_absences') }}" class="text-dark">Voir <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-secondary text-white"><i class="fas fa-plus-circle"></i> Actions Rapides</div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('add_classe') }}" class="btn btn-outline-primary w-100"><i class="fas fa-plus"></i> Classe</a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('add_etudiant') }}" class="btn btn-outline-success w-100"><i class="fas fa-plus"></i> Étudiant</a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('add_matiere') }}" class="btn btn-outline-info w-100"><i class="fas fa-plus"></i> Matière</a>
+                    </div>
+                    <div class="col-md-3 mb-2">
+                        <a href="{{ url_for('add_absence') }}" class="btn btn-outline-warning w-100"><i class="fas fa-plus"></i> Absence</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

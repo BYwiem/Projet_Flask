@@ -1,0 +1,133 @@
+{% extends "base.html" %}
+
+{% block title %}Mes absences - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-2 sidebar d-none d-lg-block">
+            <nav class="nav flex-column">
+                <a class="nav-link" href="{{ url_for('student.dashboard') }}">
+                    <i class="fas fa-tachometer-alt"></i>Tableau de bord
+                </a>
+                <a class="nav-link active" href="{{ url_for('student.my_absences') }}">
+                    <i class="fas fa-calendar-times"></i>Mes absences
+                </a>
+                <a class="nav-link" href="{{ url_for('student.my_modules') }}">
+                    <i class="fas fa-book"></i>Mes modules
+                </a>
+                <a class="nav-link" href="{{ url_for('student.academic_info') }}">
+                    <i class="fas fa-info-circle"></i>Info académique
+                </a>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-10">
+            <div class="page-header">
+                <h1><i class="fas fa-calendar-times me-2"></i>Mes absences</h1>
+                <p class="text-muted">Historique de vos absences par module</p>
+            </div>
+            
+            <!-- Summary Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body">
+                            <h5>Total heures d'absence</h5>
+                            <h2>{{ total_hours }}h</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card {% if global_rate >= 50 %}bg-warning{% else %}bg-success{% endif %} text-white">
+                        <div class="card-body">
+                            <h5>Taux global</h5>
+                            <h2>{{ global_rate }}%</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-info text-white">
+                        <div class="card-body">
+                            <h5>Absences justifiées</h5>
+                            <h2>{{ justified_count }} / {{ total_count }}</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Filters -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <form method="GET" class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label">Module</label>
+                            <select name="module" class="form-select">
+                                <option value="">Tous les modules</option>
+                                {% for module in modules %}
+                                <option value="{{ module.id }}" {% if request.args.get('module') == module.id|string %}selected{% endif %}>{{ module.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Date début</label>
+                            <input type="date" name="start_date" class="form-control" value="{{ request.args.get('start_date', '') }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Date fin</label>
+                            <input type="date" name="end_date" class="form-control" value="{{ request.args.get('end_date', '') }}">
+                        </div>
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-filter me-1"></i>Filtrer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Absences Table -->
+            <div class="card">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Module</th>
+                                    <th>Heures</th>
+                                    <th>Motif</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for absence in absences %}
+                                <tr>
+                                    <td>{{ absence.date.strftime('%d/%m/%Y') }}</td>
+                                    <td>{{ absence.module.name }}</td>
+                                    <td>{{ absence.hours }}h</td>
+                                    <td>{{ absence.reason or '-' }}</td>
+                                    <td>
+                                        {% if absence.is_justified %}
+                                            <span class="badge bg-success">Justifiée</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Non justifiée</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="5" class="text-center py-4 text-muted">Aucune absence enregistrée</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

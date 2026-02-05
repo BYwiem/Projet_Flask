@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Affectations - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="fas fa-link me-2"></i>Affectations</h1>
+            <p class="text-muted">Gérer les affectations professeur-module-classe</p>
+        </div>
+        <a href="{{ url_for('admin.create_assignment') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>Nouvelle affectation
+        </a>
+    </div>
+    
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Professeur</th>
+                            <th>Module</th>
+                            <th>Classe</th>
+                            <th>Année académique</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for assignment in assignments %}
+                        <tr>
+                            <td>{{ assignment.professor.first_name }} {{ assignment.professor.last_name }}</td>
+                            <td>{{ assignment.module.name }}</td>
+                            <td>{{ assignment.classe.name if assignment.classe else 'Toutes' }}</td>
+                            <td>{{ assignment.academic_year or 'N/A' }}</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">Aucune affectation trouvée</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

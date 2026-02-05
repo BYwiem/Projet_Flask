@@ -1,0 +1,127 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Créer un module - Gestion Scolaire{% endblock %}
+
+{% block admin_content %}
+<div class="py-4">
+    <div class="page-header">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('admin.list_modules') }}">Modules</a></li>
+                <li class="breadcrumb-item active">Créer</li>
+            </ol>
+        </nav>
+        <h1><i class="fas fa-book me-2"></i>Créer un module</h1>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body p-4">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <h5 class="mb-3"><i class="fas fa-info-circle me-2"></i>Informations générales</h5>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Code *</label>
+                                {{ form.code(class="form-control", placeholder="PROG1") }}
+                                {% if form.code.errors %}
+                                    <div class="text-danger small">{{ form.code.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                <label class="form-label">Intitulé *</label>
+                                {{ form.name(class="form-control", placeholder="Programmation 1") }}
+                                {% if form.name.errors %}
+                                    <div class="text-danger small">{{ form.name.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            {{ form.description(class="form-control", rows="2") }}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Heures totales</label>
+                                {{ form.total_hours(class="form-control", type="number", min="1") }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Crédits</label>
+                                {{ form.credits(class="form-control", type="number", min="1") }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="form-check mt-4">
+                                    {{ form.is_active(class="form-check-input") }}
+                                    <label class="form-check-label">Module actif</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h5 class="mb-3 mt-4"><i class="fas fa-clock me-2"></i>Seuil d'absence</h5>
+                        <p class="text-muted small">Définir le nombre maximum d'heures et minutes d'absence non justifiée autorisées</p>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Heures</label>
+                                {{ form.absence_threshold_hours(class="form-control", type="number", min="0") }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Minutes</label>
+                                {{ form.absence_threshold_minutes(class="form-control", type="number", min="0", max="59") }}
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <h5 class="mb-3"><i class="fas fa-graduation-cap me-2"></i>Filières associées</h5>
+                        <p class="text-muted small">Sélectionnez les filières qui incluent ce module</p>
+                        
+                        <div class="mb-3">
+                            <div class="border rounded p-3" style="max-height: 200px; overflow-y: auto;">
+                                {% for choice in form.majors.choices %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="majors" value="{{ choice[0] }}" id="major_{{ choice[0] }}"
+                                        {% if form.majors.data and choice[0] in form.majors.data %}checked{% endif %}>
+                                    <label class="form-check-label" for="major_{{ choice[0] }}">{{ choice[1] }}</label>
+                                </div>
+                                {% else %}
+                                <p class="text-muted mb-0">Aucune filière disponible</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <h5 class="mb-3"><i class="fas fa-chalkboard-teacher me-2"></i>Professeurs enseignants</h5>
+                        <p class="text-muted small">Sélectionnez les professeurs qui enseignent ce module</p>
+                        
+                        <div class="mb-3">
+                            <div class="border rounded p-3" style="max-height: 200px; overflow-y: auto;">
+                                {% for choice in form.professors.choices %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="professors" value="{{ choice[0] }}" id="prof_{{ choice[0] }}"
+                                        {% if form.professors.data and choice[0] in form.professors.data %}checked{% endif %}>
+                                    <label class="form-check-label" for="prof_{{ choice[0] }}">{{ choice[1] }}</label>
+                                </div>
+                                {% else %}
+                                <p class="text-muted mb-0">Aucun professeur disponible</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Créer le module
+                            </button>
+                            <a href="{{ url_for('admin.list_modules') }}" class="btn btn-outline-secondary">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock admin_content %}

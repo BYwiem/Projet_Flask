@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Configuration des seuils - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="page-header">
+        <h1><i class="fas fa-cog me-2"></i>Configuration des seuils</h1>
+        <p class="text-muted">Définir les seuils d'absence par module et par classe</p>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Global Settings -->
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-globe me-2"></i>Paramètres globaux</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('admin.update_global_thresholds') }}">
+                        {{ form.hidden_tag() if form else '' }}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Seuil étudiant par défaut (heures)</label>
+                                <input type="number" name="student_threshold" class="form-control" value="{{ config.DEFAULT_STUDENT_ABSENCE_THRESHOLD }}" min="1">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Seuil professeur par défaut (heures)</label>
+                                <input type="number" name="professor_threshold" class="form-control" value="{{ config.DEFAULT_PROFESSOR_ABSENCE_THRESHOLD }}" min="1">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Pourcentage d'alerte (%)</label>
+                                <input type="number" name="warning_percentage" class="form-control" value="{{ config.WARNING_THRESHOLD_PERCENTAGE }}" min="1" max="99">
+                                <small class="text-muted">Alerte envoyée à ce pourcentage du seuil</small>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-1"></i>Enregistrer
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Module-specific Settings -->
+            <div class="card">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-book me-2"></i>Seuils par module</h5>
+                    <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addThresholdModal">
+                        <i class="fas fa-plus me-1"></i>Ajouter
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Module</th>
+                                    <th>Classe</th>
+                                    <th>Seuil (heures)</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for setting in threshold_settings %}
+                                <tr>
+                                    <td>{{ setting.module.name if setting.module else 'Global' }}</td>
+                                    <td>{{ setting.classe.name if setting.classe else 'Toutes' }}</td>
+                                    <td>{{ setting.threshold_hours }}h</td>
+                                    <td>
+                                        <button class="btn btn-sm btn-outline-warning" onclick="editThreshold({{ setting.id }})">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="deleteThreshold({{ setting.id }})">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">Aucun seuil personnalisé défini</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0"><i class="fas fa-info-circle me-2"></i>Aide</h6>
+                </div>
+                <div class="card-body">
+                    <p class="small text-muted">
+                        <strong>Seuil par défaut:</strong> Appliqué à tous les modules sans configuration spécifique.
+                    </p>
+                    <p class="small text-muted">
+                        <strong>Alerte à 50%:</strong> Un email est envoyé quand l'étudiant atteint 50% du seuil.
+                    </p>
+                    <p class="small text-muted mb-0">
+                        <strong>Dépassement:</strong> Un email est envoyé quand le seuil est atteint ou dépassé.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Threshold Modal -->
+<div class="modal fade" id="addThresholdModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="POST" action="{{ url_for('admin.add_threshold') }}">
+                <div class="modal-header">
+                    <h5 class="modal-title">Ajouter un seuil personnalisé</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Module</label>
+                        <select name="module_id" class="form-select" required>
+                            <option value="">Sélectionner un module</option>
+                            {% for module in modules %}
+                            <option value="{{ module.id }}">{{ module.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Classe (optionnel)</label>
+                        <select name="classe_id" class="form-select">
+                            <option value="">Toutes les classes</option>
+                            {% for classe in classes %}
+                            <option value="{{ classe.id }}">{{ classe.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Seuil (heures)</label>
+                        <input type="number" name="threshold_hours" class="form-control" min="1" required>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <button type="submit" class="btn btn-primary">Ajouter</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

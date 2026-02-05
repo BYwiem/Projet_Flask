@@ -1,0 +1,47 @@
+{% extends 'admin/base.html' %}
+
+{% block brand %}
+<a class="navbar-brand" href="{{ admin_view.admin.url }}">
+    <i class="fa fa-cogs"></i> Administration
+</a>
+{% endblock %}
+
+{% block head_css %}
+{{ super() }}
+<style>
+    /* Make navbar full width */
+    body {
+        margin: 0;
+        padding: 0;
+    }
+    .navbar {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+    }
+    .navbar > .container-fluid,
+    .navbar > .container {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    .container-fluid {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    .navbar-brand {
+        font-weight: bold;
+    }
+    .badge-danger { background-color: #dc3545; }
+    .badge-primary { background-color: #007bff; }
+    .badge-secondary { background-color: #6c757d; }
+    .badge {
+        padding: 5px 10px;
+        border-radius: 4px;
+        color: white;
+        font-size: 0.85em;
+    }
+</style>
+{% endblock %}

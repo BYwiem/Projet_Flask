@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% block title %}Modifier Étudiant{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <i class="fas fa-user-edit"></i> Modifier l'Étudiant: {{ etudiant.Nom }} {{ etudiant.Prenom }}
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('edit_etudiant', nce=etudiant.NCE) }}" enctype="multipart/form-data" novalidate>
+                    {{ form.hidden_tag() }}
+                    
+                    <!-- NCE (read-only) -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">N° Carte Étudiant (NCE)</label>
+                            <input type="text" class="form-control" value="{{ etudiant.NCE }}" readonly disabled>
+                            <small class="text-muted">Le NCE ne peut pas être modifié</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Classe</label>
+                            <select name="CodClass" class="form-select">
+                                {% for c in form.CodClass.choices %}
+                                <option value="{{ c[0] }}" {% if c[0] == etudiant.CodClass %}selected{% endif %}>{{ c[1] }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nom</label>
+                            <input type="text" class="form-control" name="Nom" value="{{ etudiant.Nom }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Prénom</label>
+                            <input type="text" class="form-control" name="Prenom" value="{{ etudiant.Prenom }}" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Date de Naissance</label>
+                            <input type="date" class="form-control" name="DateNais" 
+                                   value="{{ etudiant.DateNais.strftime('%Y-%m-%d') if etudiant.DateNais else '' }}"
+                                   max="{{ max_birth_date }}">
+                            <small class="text-muted">Doit avoir au moins 18 ans</small>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Lieu de Naissance</label>
+                            <select name="LieuNais" class="form-select">
+                                {% for value, label in form.LieuNais.choices %}
+                                <option value="{{ value }}" {% if value == etudiant.LieuNais %}selected{% endif %}>{{ label }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Photo Section -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Photo actuelle</label>
+                            <div class="mb-2">
+                                {% if etudiant.photo %}
+                                <img src="{{ url_for('static', filename='image/' + etudiant.photo) }}" 
+                                     alt="Photo de {{ etudiant.Nom }}" 
+                                     class="img-thumbnail" 
+                                     style="max-width: 150px; max-height: 150px;">
+                                {% else %}
+                                <div class="alert alert-secondary py-2">
+                                    <i class="fas fa-user"></i> Aucune photo disponible
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nouvelle photo</label>
+                            <input type="file" class="form-control" name="photo" accept="image/*">
+                            <small class="text-muted">Formats acceptés: PNG, JPG, JPEG, GIF</small>
+                            {% if etudiant.photo %}
+                            <small class="text-info d-block mt-1">
+                                <i class="fas fa-info-circle"></i> Laissez vide pour conserver la photo actuelle
+                            </small>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Enregistrer les modifications
+                        </button>
+                        <a href="{{ url_for('list_etudiants') }}" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Annuler
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Student Info Card -->
+        <div class="card mt-3">
+            <div class="card-header bg-info text-white">
+                <i class="fas fa-info-circle"></i> Informations supplémentaires
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Date de création:</strong> 
+                            {{ etudiant.created_at.strftime('%d/%m/%Y %H:%M') if etudiant.created_at else 'N/A' }}
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Dernière modification:</strong> 
+                            {{ etudiant.updated_at.strftime('%d/%m/%Y %H:%M') if etudiant.updated_at else 'N/A' }}
+                        </p>
+                    </div>
+                </div>
+                <p><strong>Nombre d'absences:</strong> {{ etudiant.absences|length }}</p>
+                <a href="{{ url_for('etudiant_detail', nce=etudiant.NCE) }}" class="btn btn-outline-info btn-sm">
+                    <i class="fas fa-eye"></i> Voir détails complets
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

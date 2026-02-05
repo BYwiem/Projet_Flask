@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Créer un étudiant - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="page-header">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('main.dashboard') }}">Tableau de bord</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('admin.list_students') }}">Étudiants</a></li>
+                <li class="breadcrumb-item active">Créer</li>
+            </ol>
+        </nav>
+        <h1><i class="fas fa-user-graduate me-2"></i>Créer un étudiant</h1>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body p-4">
+                    <form method="POST" enctype="multipart/form-data">
+                        {{ form.hidden_tag() }}
+                        
+                        <h5 class="mb-3"><i class="fas fa-user me-2"></i>Informations personnelles</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Prénom *</label>
+                                {{ form.first_name(class="form-control", placeholder="Prénom") }}
+                                {% if form.first_name.errors %}
+                                    <div class="text-danger small">{{ form.first_name.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Nom *</label>
+                                {{ form.last_name(class="form-control", placeholder="Nom") }}
+                                {% if form.last_name.errors %}
+                                    <div class="text-danger small">{{ form.last_name.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Email *</label>
+                                {{ form.email(class="form-control", placeholder="email@exemple.com") }}
+                                {% if form.email.errors %}
+                                    <div class="text-danger small">{{ form.email.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Téléphone</label>
+                                {{ form.phone(class="form-control", placeholder="+216 XX XXX XXX") }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Date de naissance</label>
+                                {{ form.date_of_birth(class="form-control", type="date") }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Lieu de naissance</label>
+                                {{ form.place_of_birth(class="form-control", placeholder="Ville") }}
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Adresse</label>
+                                {{ form.address(class="form-control", placeholder="Adresse complète") }}
+                            </div>
+                        </div>
+                        
+                        <h5 class="mb-3"><i class="fas fa-graduation-cap me-2"></i>Informations académiques</h5>
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Numéro étudiant *</label>
+                                {{ form.student_id(class="form-control", placeholder="2024/ETU/001") }}
+                                {% if form.student_id.errors %}
+                                    <div class="text-danger small">{{ form.student_id.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Filière</label>
+                                {{ form.major_id(class="form-select") }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Classe</label>
+                                {{ form.class_id(class="form-select") }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Semestre actuel</label>
+                                {{ form.current_semester(class="form-control", type="number", min="1", max="10") }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Photo</label>
+                                {{ form.photo(class="form-control", accept="image/*") }}
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Un mot de passe sera généré automatiquement et envoyé par email à l'étudiant.
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Créer l'étudiant
+                            </button>
+                            <a href="{{ url_for('admin.list_students') }}" class="btn btn-outline-secondary">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

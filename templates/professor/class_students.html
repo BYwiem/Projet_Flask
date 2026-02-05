@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}{{ classe.name }} - Étudiants{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-2 sidebar d-none d-lg-block">
+            <nav class="nav flex-column">
+                <a class="nav-link" href="{{ url_for('professor.dashboard') }}">
+                    <i class="fas fa-tachometer-alt"></i>Tableau de bord
+                </a>
+                <a class="nav-link" href="{{ url_for('professor.my_absences') }}">
+                    <i class="fas fa-calendar-times"></i>Mes absences
+                </a>
+                <a class="nav-link" href="{{ url_for('professor.my_modules') }}">
+                    <i class="fas fa-book"></i>Mes modules
+                </a>
+                <a class="nav-link active" href="{{ url_for('professor.my_classes') }}">
+                    <i class="fas fa-users"></i>Mes classes
+                </a>
+                <a class="nav-link" href="{{ url_for('main.profile') }}">
+                    <i class="fas fa-user"></i>Mon profil
+                </a>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-10">
+            <div class="page-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-users me-2"></i>{{ classe.name }}</h1>
+                    <p class="text-muted">Liste des étudiants et leurs absences</p>
+                </div>
+                <a href="{{ url_for('professor.my_classes') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Retour
+                </a>
+            </div>
+            
+            <!-- Module filter info -->
+            {% if modules %}
+            <div class="alert alert-info mb-4">
+                <i class="fas fa-info-circle me-2"></i>
+                Modules enseignés: 
+                {% for module in modules %}
+                    <span class="badge bg-primary">{{ module.name }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            <!-- Students Table -->
+            <div class="card">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Étudiant</th>
+                                    <th>N° Étudiant</th>
+                                    {% for module in modules %}
+                                    <th class="text-center">{{ module.name }}</th>
+                                    {% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stat in student_stats %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ stat.student.first_name }} {{ stat.student.last_name }}</strong>
+                                    </td>
+                                    <td>{{ stat.student.student_id or 'N/A' }}</td>
+                                    {% for mod_stat in stat.modules %}
+                                    <td class="text-center">
+                                        <span class="badge {% if mod_stat.status == 'exceeded' %}bg-danger{% elif mod_stat.status == 'warning' %}bg-warning{% else %}bg-success{% endif %}">
+                                            {{ mod_stat.hours }}h ({{ mod_stat.rate|round(1) }}%)
+                                        </span>
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="{{ modules|length + 2 }}" class="text-center py-4 text-muted">
+                                        Aucun étudiant dans cette classe
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

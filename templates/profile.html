@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block title %}Mon profil - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="page-header">
+        <h1><i class="fas fa-user-circle me-2"></i>Mon profil</h1>
+        <p class="text-muted">Consultez et modifiez vos informations personnelles</p>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="card text-center">
+                <div class="card-body p-4">
+                    {% if profile and profile.photo %}
+                        <img src="{{ url_for('static', filename='image/' + profile.photo) }}" class="rounded-circle mb-3" width="150" height="150" alt="Photo de profil">
+                    {% else %}
+                        <div class="avatar-placeholder mx-auto mb-3" style="width: 150px; height: 150px; font-size: 4rem;">
+                            {{ current_user.full_name[0] | upper }}
+                        </div>
+                    {% endif %}
+                    <h4>{{ current_user.full_name }}</h4>
+                    <p class="text-muted mb-2">
+                        <span class="badge bg-primary">{{ current_user.role | replace('_', ' ') | title }}</span>
+                    </p>
+                    <p class="text-muted small">{{ current_user.email }}</p>
+                    <hr>
+                    <a href="{{ url_for('main.edit_profile') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-edit me-1"></i>Modifier le profil
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informations</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small">Prénom</label>
+                            <p class="fw-medium">{{ current_user.first_name }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small">Nom</label>
+                            <p class="fw-medium">{{ current_user.last_name }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small">Email</label>
+                            <p class="fw-medium">{{ current_user.email }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small">Rôle</label>
+                            <p class="fw-medium">{{ current_user.role | replace('_', ' ') | title }}</p>
+                        </div>
+                        
+                        {% if profile %}
+                            {% if current_user.role == 'student' %}
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted small">Numéro étudiant</label>
+                                <p class="fw-medium">{{ profile.student_id or 'N/A' }}</p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted small">Classe</label>
+                                <p class="fw-medium">{{ profile.classe.name if profile.classe else 'N/A' }}</p>
+                            </div>
+                            {% elif current_user.role == 'professor' %}
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted small">Matricule</label>
+                                <p class="fw-medium">{{ profile.employee_id or 'N/A' }}</p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted small">Département</label>
+                                <p class="fw-medium">{{ profile.department or 'N/A' }}</p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted small">Spécialité</label>
+                                <p class="fw-medium">{{ profile.specialization or 'N/A' }}</p>
+                            </div>
+                            {% elif current_user.role == 'admin_staff' %}
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted small">Matricule</label>
+                                <p class="fw-medium">{{ profile.employee_id or 'N/A' }}</p>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted small">Service</label>
+                                <p class="fw-medium">{{ profile.department or 'N/A' }}</p>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted small">Téléphone</label>
+                                <p class="fw-medium">{{ profile.phone or 'N/A' }}</p>
+                            </div>
+                        {% endif %}
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-muted small">Membre depuis</label>
+                            <p class="fw-medium">{{ current_user.created_at.strftime('%d/%m/%Y') if current_user.created_at else 'N/A' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card mt-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-shield-alt me-2"></i>Sécurité</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong>Mot de passe</strong>
+                            <p class="text-muted small mb-0">Dernière modification: {{ current_user.updated_at.strftime('%d/%m/%Y') if current_user.updated_at else 'N/A' }}</p>
+                        </div>
+                        <a href="{{ url_for('auth.change_password') }}" class="btn btn-outline-warning">
+                            <i class="fas fa-key me-1"></i>Changer
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

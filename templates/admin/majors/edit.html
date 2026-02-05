@@ -1,0 +1,136 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Modifier {{ major.name }} - Gestion Scolaire{% endblock %}
+
+{% block admin_content %}
+<div class="py-4">
+    <div class="page-header">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('admin.list_majors') }}">Filières</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('admin.view_major', id=major.id) }}">{{ major.name }}</a></li>
+                <li class="breadcrumb-item active">Modifier</li>
+            </ol>
+        </nav>
+        <h1><i class="fas fa-graduation-cap me-2"></i>Modifier la filière</h1>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body p-4">
+                    <form method="POST">
+                        {{ form.hidden_tag() }}
+                        
+                        <h5 class="mb-3"><i class="fas fa-info-circle me-2"></i>Informations générales</h5>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Code *</label>
+                                {{ form.code(class="form-control") }}
+                                {% if form.code.errors %}
+                                    <div class="text-danger small">{{ form.code.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                <label class="form-label">Nom *</label>
+                                {{ form.name(class="form-control") }}
+                                {% if form.name.errors %}
+                                    <div class="text-danger small">{{ form.name.errors[0] }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            {{ form.description(class="form-control", rows="2") }}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Nombre de semestres</label>
+                                {{ form.total_semesters(class="form-control", type="number", min="1", max="12") }}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <div class="form-check mt-4">
+                                    {{ form.is_active(class="form-check-input") }}
+                                    <label class="form-check-label">Filière active</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <h5 class="mb-3"><i class="fas fa-school me-2"></i>Classes associées</h5>
+                        <p class="text-muted small">Sélectionnez les classes qui font partie de cette filière</p>
+                        
+                        <div class="mb-3">
+                            <div class="border rounded p-3" style="max-height: 200px; overflow-y: auto;">
+                                {% for choice in form.classes.choices %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="classes" value="{{ choice[0] }}" id="class_{{ choice[0] }}"
+                                        {% if form.classes.data and choice[0] in form.classes.data %}checked{% endif %}>
+                                    <label class="form-check-label" for="class_{{ choice[0] }}">{{ choice[1] }}</label>
+                                </div>
+                                {% else %}
+                                <p class="text-muted mb-0">Aucune classe disponible. <a href="{{ url_for('admin.create_classe') }}">Créer une classe</a></p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <h5 class="mb-3"><i class="fas fa-book me-2"></i>Modules associés</h5>
+                        <p class="text-muted small">Sélectionnez les modules qui font partie de cette filière</p>
+                        
+                        <div class="mb-3">
+                            <div class="border rounded p-3" style="max-height: 200px; overflow-y: auto;">
+                                {% for choice in form.modules.choices %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="modules" value="{{ choice[0] }}" id="module_{{ choice[0] }}"
+                                        {% if form.modules.data and choice[0] in form.modules.data %}checked{% endif %}>
+                                    <label class="form-check-label" for="module_{{ choice[0] }}">{{ choice[1] }}</label>
+                                </div>
+                                {% else %}
+                                <p class="text-muted mb-0">Aucun module disponible. <a href="{{ url_for('admin.create_module') }}">Créer un module</a></p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-1"></i>Enregistrer les modifications
+                            </button>
+                            <a href="{{ url_for('admin.view_major', id=major.id) }}" class="btn btn-outline-secondary">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Statistiques</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row text-center">
+                        <div class="col-6 mb-3">
+                            <h4 class="text-primary">{{ major.classes | length }}</h4>
+                            <small class="text-muted">Classes</small>
+                        </div>
+                        <div class="col-6 mb-3">
+                            <h4 class="text-success">{{ major.modules | length }}</h4>
+                            <small class="text-muted">Modules</small>
+                        </div>
+                    </div>
+                    <div class="text-center">
+                        <h4 class="text-info">{{ major.students | length }}</h4>
+                        <small class="text-muted">Étudiants inscrits</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock admin_content %}

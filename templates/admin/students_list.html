@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}Liste des étudiants - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="fas fa-user-graduate me-2"></i>Étudiants</h1>
+            <p class="text-muted">Gérer la liste des étudiants</p>
+        </div>
+        {% if current_user.role in ['super_admin', 'admin_staff'] %}
+        <a href="{{ url_for('admin.create_student') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>Ajouter un étudiant
+        </a>
+        {% endif %}
+    </div>
+    
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" name="search" class="form-control" placeholder="Rechercher..." value="{{ request.args.get('search', '') }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select name="classe" class="form-select">
+                        <option value="">Toutes les classes</option>
+                        {% for classe in classes %}
+                        <option value="{{ classe.id }}" {% if request.args.get('classe') == classe.id|string %}selected{% endif %}>{{ classe.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="major" class="form-select">
+                        <option value="">Toutes les filières</option>
+                        {% for major in majors %}
+                        <option value="{{ major.id }}" {% if request.args.get('major') == major.id|string %}selected{% endif %}>{{ major.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-filter me-1"></i>Filtrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Students Table -->
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Étudiant</th>
+                            <th>N° Étudiant</th>
+                            <th>Classe</th>
+                            <th>Filière</th>
+                            <th>Absences</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if student.photo %}
+                                        <img src="{{ url_for('static', filename='image/' + student.photo) }}" class="rounded-circle me-2" width="40" height="40" alt="">
+                                    {% else %}
+                                        <div class="avatar-placeholder me-2" style="width: 40px; height: 40px;">{{ student.user.full_name[0] | upper }}</div>
+                                    {% endif %}
+                                    <div>
+                                        <strong>{{ student.user.full_name }}</strong>
+                                        <p class="small text-muted mb-0">{{ student.user.email }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ student.student_id or 'N/A' }}</td>
+                            <td>{{ student.classe.name if student.classe else 'N/A' }}</td>
+                            <td>{{ student.classe.major.name if student.classe and student.classe.major else 'N/A' }}</td>
+                            <td>
+                                {% set total_hours = student.get_total_absence_hours() %}
+                                {% set rate = student.get_absence_rate() %}
+                                <span class="{% if rate >= 100 %}text-danger{% elif rate >= 50 %}text-warning{% else %}text-success{% endif %}">
+                                    {{ total_hours }}h ({{ rate }}%)
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ url_for('admin.view_student', student_id=student.id) }}" class="btn btn-outline-primary" title="Voir">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ url_for('admin.edit_student', student_id=student.id) }}" class="btn btn-outline-warning" title="Modifier">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-outline-danger" onclick="confirmDelete('{{ url_for('admin.delete_student', student_id=student.id) }}')" title="Supprimer">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">Aucun étudiant trouvé</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pagination -->
+    {% if pagination and pagination.pages > 1 %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if pagination.has_prev %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ pagination.prev_num }}">Précédent</a>
+            </li>
+            {% endif %}
+            {% for page in pagination.iter_pages() %}
+                {% if page %}
+                <li class="page-item {% if page == pagination.page %}active{% endif %}">
+                    <a class="page-link" href="?page={{ page }}">{{ page }}</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+            {% endfor %}
+            {% if pagination.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ pagination.next_num }}">Suivant</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirmer la suppression</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Êtes-vous sûr de vouloir supprimer cet étudiant ? Cette action est irréversible.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <a href="#" id="confirmDeleteBtn" class="btn btn-danger">Supprimer</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+function confirmDelete(url) {
+    document.getElementById('confirmDeleteBtn').href = url;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+{% endblock %}
+{% endblock %}

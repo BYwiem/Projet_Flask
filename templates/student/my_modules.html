@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Mes modules - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-2 sidebar d-none d-lg-block">
+            <nav class="nav flex-column">
+                <a class="nav-link" href="{{ url_for('student.dashboard') }}">
+                    <i class="fas fa-tachometer-alt"></i>Tableau de bord
+                </a>
+                <a class="nav-link" href="{{ url_for('student.my_absences') }}">
+                    <i class="fas fa-calendar-times"></i>Mes absences
+                </a>
+                <a class="nav-link active" href="{{ url_for('student.my_modules') }}">
+                    <i class="fas fa-book"></i>Mes modules
+                </a>
+                <a class="nav-link" href="{{ url_for('student.academic_info') }}">
+                    <i class="fas fa-info-circle"></i>Info académique
+                </a>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-10">
+            <div class="page-header">
+                <h1><i class="fas fa-book me-2"></i>Mes modules</h1>
+                <p class="text-muted">Taux d'absence par module</p>
+            </div>
+            
+            <div class="row g-4">
+                {% for item in module_stats %}
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">{{ item.module.name }}</h5>
+                            <span class="badge bg-secondary">{{ item.module.code }}</span>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted small mb-3">{{ item.module.total_hours }}h de cours total</p>
+                            
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>Absences</span>
+                                    <span class="{% if item.rate >= 100 %}text-danger{% elif item.rate >= 50 %}text-warning{% else %}text-success{% endif %}">
+                                        {{ item.hours }}h / {{ item.module.absence_threshold }}h
+                                    </span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar {% if item.rate >= 100 %}bg-danger{% elif item.rate >= 50 %}bg-warning{% else %}bg-success{% endif %}" 
+                                         style="width: {{ [item.rate, 100] | min }}%"></div>
+                                </div>
+                                <small class="text-muted">{{ item.rate|round(1) }}% du seuil</small>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between small text-muted">
+                                <span><i class="fas fa-clock me-1"></i>Restant: {{ (item.module.absence_threshold - item.hours)|round(1) }}h</span>
+                                <span>
+                                    {% if item.status == 'exceeded' %}
+                                        <span class="badge badge-status-exceeded">Seuil dépassé</span>
+                                    {% elif item.status == 'warning' %}
+                                        <span class="badge badge-status-warning">Attention</span>
+                                    {% else %}
+                                        <span class="badge badge-status-ok">OK</span>
+                                    {% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-white">
+                            <a href="{{ url_for('student.module_detail', module_id=item.module.id) }}" class="btn btn-sm btn-outline-primary w-100">
+                                <i class="fas fa-eye me-1"></i>Voir détails
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>Aucun module disponible pour votre classe.
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

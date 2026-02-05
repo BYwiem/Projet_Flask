@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+{% block title %}Ajouter Étudiant{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header bg-success text-white"><i class="fas fa-user-plus"></i> Ajouter un Étudiant</div>
+            <div class="card-body">
+                <form method="POST" enctype="multipart/form-data" novalidate>
+                    {{ form.hidden_tag() }}
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.NCE.label(class="form-label") }}
+                            {{ form.NCE(class="form-control" + (" is-invalid" if form.NCE.errors else ""), placeholder="Ex: E001") }}
+                            {% for error in form.NCE.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.CodClass.label(class="form-label") }}
+                            {{ form.CodClass(class="form-select" + (" is-invalid" if form.CodClass.errors else "")) }}
+                            {% for error in form.CodClass.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.Nom.label(class="form-label") }}
+                            {{ form.Nom(class="form-control" + (" is-invalid" if form.Nom.errors else ""), placeholder="Lettres uniquement") }}
+                            {% for error in form.Nom.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.Prenom.label(class="form-label") }}
+                            {{ form.Prenom(class="form-control" + (" is-invalid" if form.Prenom.errors else ""), placeholder="Lettres uniquement") }}
+                            {% for error in form.Prenom.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            {{ form.DateNais.label(class="form-label") }}
+                            {{ form.DateNais(class="form-control" + (" is-invalid" if form.DateNais.errors else ""), type="date", max=max_birth_date) }}
+                            <small class="text-muted">Doit avoir au moins 18 ans</small>
+                            {% for error in form.DateNais.errors %}<div class="invalid-feedback d-block">{{ error }}</div>{% endfor %}
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            {{ form.LieuNais.label(class="form-label") }}
+                            {{ form.LieuNais(class="form-select" + (" is-invalid" if form.LieuNais.errors else "")) }}
+                            {% for error in form.LieuNais.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12 mb-3">
+                            <label class="form-label">Photo de l'étudiant</label>
+                            <input type="file" class="form-control" name="photo" accept="image/*">
+                            <small class="text-muted">Formats acceptés: PNG, JPG, JPEG, GIF</small>
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2">
+                        {{ form.submit(class="btn btn-success") }}
+                        <a href="{{ url_for('list_etudiants') }}" class="btn btn-secondary">Annuler</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

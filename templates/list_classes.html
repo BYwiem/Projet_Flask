@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Liste des Classes{% endblock %}
+{% block content %}
+<div class="card">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-school"></i> Liste des Classes</span>
+        <a href="{{ url_for('add_classe') }}" class="btn btn-light btn-sm"><i class="fas fa-plus"></i> Ajouter</a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr><th>Code</th><th>Nom</th><th>Effectif</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                    {% for classe in classes %}
+                    <tr>
+                        <td><span class="badge bg-primary">{{ classe.CodClass }}</span></td>
+                        <td>{{ classe.NomClass }}</td>
+                        <td>{{ classe.NbrEtud }}</td>
+                        <td>
+                            <a href="{{ url_for('delete_classe', cod_class=classe.CodClass) }}" class="btn btn-danger btn-sm" onclick="return confirm('Supprimer ?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr><td colspan="4" class="text-center text-muted">Aucune classe</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

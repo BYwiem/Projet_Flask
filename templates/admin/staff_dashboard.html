@@ -1,0 +1,143 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Tableau de bord Personnel - Gestion Scolaire{% endblock %}
+
+{% block admin_content %}
+            <div class="page-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-user-tie text-primary me-2"></i>Personnel Administratif</h1>
+                    <p class="text-muted">Bienvenue, {{ current_user.full_name }}</p>
+                </div>
+                <a href="{{ url_for('admin.create_student_absence') }}" class="btn btn-primary">
+                    <i class="fas fa-plus me-1"></i>Enregistrer absence
+                </a>
+            </div>
+            
+            <!-- Stats Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card primary">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value">{{ stats.total_students }}</div>
+                                <div class="stat-label">Étudiants</div>
+                            </div>
+                            <i class="fas fa-user-graduate stat-icon"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card success">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value">{{ stats.total_professors }}</div>
+                                <div class="stat-label">Professeurs</div>
+                            </div>
+                            <i class="fas fa-chalkboard-teacher stat-icon"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card warning">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value">{{ stats.absences_today }}</div>
+                                <div class="stat-label">Absences aujourd'hui</div>
+                            </div>
+                            <i class="fas fa-calendar-day stat-icon"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card info">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value">{{ stats.threshold_alerts }}</div>
+                                <div class="stat-label">Alertes seuil</div>
+                            </div>
+                            <i class="fas fa-exclamation-triangle stat-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row g-4">
+                <!-- Quick Actions -->
+                <div class="col-lg-4">
+                    <div class="card">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Actions rapides</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-grid gap-2">
+                                <a href="{{ url_for('admin.create_student_absence') }}" class="btn btn-outline-primary">
+                                    <i class="fas fa-calendar-plus me-2"></i>Enregistrer absence étudiant
+                                </a>
+                                <a href="{{ url_for('admin.create_professor_absence') }}" class="btn btn-outline-info">
+                                    <i class="fas fa-calendar-plus me-2"></i>Enregistrer absence prof
+                                </a>
+                                <a href="{{ url_for('admin.threshold_settings') }}" class="btn btn-outline-warning">
+                                    <i class="fas fa-cog me-2"></i>Configurer seuils
+                                </a>
+                                <a href="{{ url_for('admin.list_student_absences') }}" class="btn btn-outline-danger">
+                                    <i class="fas fa-list me-2"></i>Voir toutes les absences
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Threshold Alerts -->
+                <div class="col-lg-8">
+                    <div class="card">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                            <h5 class="mb-0"><i class="fas fa-exclamation-circle text-danger me-2"></i>Étudiants en alerte</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-hover mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Étudiant</th>
+                                            <th>Classe</th>
+                                            <th>Module</th>
+                                            <th>Heures</th>
+                                            <th>Taux</th>
+                                            <th>Statut</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for alert in threshold_alerts %}
+                                        <tr>
+                                            <td>{{ alert.student_name }}</td>
+                                            <td>{{ alert.class_name }}</td>
+                                            <td>{{ alert.module_name }}</td>
+                                            <td>{{ alert.hours }}/{{ alert.threshold }}</td>
+                                            <td>
+                                                <div class="progress" style="width: 100px;">
+                                                    <div class="progress-bar {% if alert.percentage >= 100 %}bg-danger{% elif alert.percentage >= 50 %}bg-warning{% else %}bg-success{% endif %}" 
+                                                         style="width: {{ [alert.percentage, 100] | min }}%"></div>
+                                                </div>
+                                                <small>{{ alert.percentage }}%</small>
+                                            </td>
+                                            <td>
+                                                {% if alert.percentage >= 100 %}
+                                                    <span class="badge badge-status-exceeded">Dépassé</span>
+                                                {% else %}
+                                                    <span class="badge badge-status-warning">Attention</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% else %}
+                                        <tr>
+                                            <td colspan="6" class="text-center py-4 text-muted">Aucune alerte de seuil</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+{% endblock %}

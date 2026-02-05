@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Mes absences - Professeur{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-2 sidebar d-none d-lg-block">
+            <nav class="nav flex-column">
+                <a class="nav-link" href="{{ url_for('professor.dashboard') }}">
+                    <i class="fas fa-tachometer-alt"></i>Tableau de bord
+                </a>
+                <a class="nav-link active" href="{{ url_for('professor.my_absences') }}">
+                    <i class="fas fa-calendar-times"></i>Mes absences
+                </a>
+                <a class="nav-link" href="{{ url_for('professor.my_modules') }}">
+                    <i class="fas fa-book"></i>Mes modules
+                </a>
+                <a class="nav-link" href="{{ url_for('professor.my_classes') }}">
+                    <i class="fas fa-users"></i>Mes classes
+                </a>
+                <a class="nav-link" href="{{ url_for('main.profile') }}">
+                    <i class="fas fa-user"></i>Mon profil
+                </a>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-10">
+            <div class="page-header">
+                <h1><i class="fas fa-calendar-times me-2"></i>Mes absences</h1>
+                <p class="text-muted">Historique de vos absences</p>
+            </div>
+            
+            <!-- Summary -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-4">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body text-center">
+                            <h3>{{ total_hours }}h</h3>
+                            <p class="mb-0">Total heures d'absence</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Absences Table -->
+            <div class="card">
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Module</th>
+                                    <th>Classe</th>
+                                    <th>Heures</th>
+                                    <th>Motif</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for absence in absences %}
+                                <tr>
+                                    <td>{{ absence.date.strftime('%d/%m/%Y') }}</td>
+                                    <td>{{ absence.module.name if absence.module else 'N/A' }}</td>
+                                    <td>{{ absence.classe.name if absence.classe else 'N/A' }}</td>
+                                    <td>{{ absence.hours }}h</td>
+                                    <td>{{ absence.reason or '-' }}</td>
+                                    <td>
+                                        {% if absence.is_justified %}
+                                            <span class="badge bg-success">Justifiée</span>
+                                        {% else %}
+                                            <span class="badge bg-warning">Non justifiée</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-4 text-muted">Aucune absence enregistrée</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Pagination -->
+            {% if absences.pages > 1 %}
+            <nav class="mt-4">
+                <ul class="pagination justify-content-center">
+                    {% if absences.has_prev %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('professor.my_absences', page=absences.prev_num) }}">Précédent</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for page in absences.iter_pages() %}
+                        {% if page %}
+                        <li class="page-item {% if page == absences.page %}active{% endif %}">
+                            <a class="page-link" href="{{ url_for('professor.my_absences', page=page) }}">{{ page }}</a>
+                        </li>
+                        {% else %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+                    
+                    {% if absences.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="{{ url_for('professor.my_absences', page=absences.next_num) }}">Suivant</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

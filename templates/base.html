@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Gestion Scolaire{% endblock %}</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary-color: #06b6d4;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --dark-color: #1f2937;
+            --light-color: #f3f4f6;
+        }
+        
+        * { font-family: 'Inter', sans-serif; }
+        
+        body {
+            background-color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .navbar {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            padding: 0.75rem 0;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.4rem;
+            color: white !important;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.9) !important;
+            font-weight: 500;
+            padding: 0.5rem 1rem !important;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        
+        .nav-link:hover {
+            color: white !important;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar {
+            background: white;
+            min-height: calc(100vh - 76px);
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            padding-top: 1.5rem;
+        }
+        
+        .sidebar .nav-link {
+            color: var(--dark-color) !important;
+            padding: 0.75rem 1.25rem !important;
+            margin: 0.25rem 0.75rem;
+            border-radius: 10px;
+        }
+        
+        .sidebar .nav-link:hover { background-color: var(--light-color); color: var(--primary-color) !important; }
+        .sidebar .nav-link.active { background-color: var(--primary-color); color: white !important; }
+        .sidebar .nav-link i { width: 24px; margin-right: 10px; }
+        
+        .card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .card:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1); }
+        
+        .stat-card {
+            border-radius: 16px;
+            padding: 1.5rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 200%;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+        }
+        
+        .stat-card.primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .stat-card.success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
+        .stat-card.warning { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .stat-card.info { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        
+        .stat-card .stat-icon { font-size: 2.5rem; opacity: 0.8; }
+        .stat-card .stat-value { font-size: 2rem; font-weight: 700; }
+        .stat-card .stat-label { opacity: 0.9; font-size: 0.9rem; }
+        
+        .table thead th {
+            background-color: var(--dark-color);
+            color: white;
+            font-weight: 600;
+            padding: 1rem;
+            border: none;
+        }
+        
+        .table thead th:first-child { border-radius: 10px 0 0 0; }
+        .table thead th:last-child { border-radius: 0 10px 0 0; }
+        .table tbody tr:hover { background-color: #f8fafc; }
+        .table td { padding: 1rem; vertical-align: middle; }
+        
+        .btn { border-radius: 10px; padding: 0.5rem 1.25rem; font-weight: 500; }
+        .btn-primary { background: var(--primary-color); border-color: var(--primary-color); }
+        .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        
+        .badge { padding: 0.5em 0.75em; border-radius: 6px; font-weight: 500; }
+        .badge-status-ok { background-color: #d1fae5; color: #065f46; }
+        .badge-status-warning { background-color: #fef3c7; color: #92400e; }
+        .badge-status-exceeded { background-color: #fee2e2; color: #991b1b; }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e5e7eb;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        
+        .alert { border: none; border-radius: 12px; padding: 1rem 1.25rem; }
+        .content-wrapper { flex: 1; padding: 2rem; }
+        
+        footer {
+            background: var(--dark-color);
+            color: white;
+            padding: 1.5rem 0;
+            margin-top: auto;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .avatar-placeholder {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .progress { height: 8px; border-radius: 4px; background-color: #e5e7eb; }
+        .progress-bar { border-radius: 4px; }
+        
+        .modal-content { border: none; border-radius: 16px; }
+        
+        .page-header { margin-bottom: 2rem; }
+        .page-header h1 { font-size: 1.75rem; font-weight: 700; color: var(--dark-color); }
+        
+        .search-box { position: relative; }
+        .search-box input { padding-left: 2.5rem; }
+        .search-box i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #9ca3af; }
+    </style>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand" href="{{ url_for('main.landing') }}">
+                <i class="fas fa-graduation-cap me-2"></i>Gestion Scolaire
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <ul class="navbar-nav ms-auto align-items-center">
+                    {% if current_user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" data-bs-toggle="dropdown">
+                                {% if current_user.profile and current_user.profile.photo %}
+                                    <img src="{{ url_for('static', filename='image/' + current_user.profile.photo) }}" class="user-avatar me-2" alt="Avatar">
+                                {% else %}
+                                    <div class="avatar-placeholder me-2">{{ current_user.full_name[0] | upper }}</div>
+                                {% endif %}
+                                <span>{{ current_user.full_name }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><span class="dropdown-item-text text-muted small">{{ current_user.role | replace('_', ' ') | title }}</span></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{{ url_for('main.dashboard') }}"><i class="fas fa-tachometer-alt me-2"></i>Tableau de bord</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('main.profile') }}"><i class="fas fa-user me-2"></i>Mon profil</a></li>
+                                <li><a class="dropdown-item" href="{{ url_for('auth.change_password') }}"><i class="fas fa-key me-2"></i>Changer mot de passe</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="{{ url_for('auth.logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Déconnexion</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('auth.login') }}"><i class="fas fa-sign-in-alt me-1"></i> Connexion</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container-fluid px-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="mt-3">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category if category != 'message' else 'info' }} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+    </div>
+    
+    {% block content %}{% endblock %}
+    
+    <footer class="text-center">
+        <div class="container">
+            <p class="mb-0"><i class="fas fa-graduation-cap me-2"></i>Gestion Scolaire &copy; 2026</p>
+        </div>
+    </footer>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.alert').forEach(function(alert) {
+                setTimeout(function() {
+                    bootstrap.Alert.getOrCreateInstance(alert).close();
+                }, 5000);
+            });
+        });
+        
+        function confirmDelete(message) {
+            return confirm(message || 'Êtes-vous sûr de vouloir supprimer cet élément ?');
+        }
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

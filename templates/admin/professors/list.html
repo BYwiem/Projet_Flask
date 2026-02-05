@@ -1,0 +1,68 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Liste des professeurs - Gestion Scolaire{% endblock %}
+
+{% block admin_content %}
+<div class="py-4">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="fas fa-chalkboard-teacher me-2"></i>Professeurs</h1>
+            <p class="text-muted">Gérer la liste des professeurs</p>
+        </div>
+        <a href="{{ url_for('admin.create_professor') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>Ajouter un professeur
+        </a>
+    </div>
+    
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Professeur</th>
+                            <th>Matricule</th>
+                            <th>Département</th>
+                            <th>Spécialité</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for professor in professors.items %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if professor.photo %}
+                                        <img src="{{ url_for('static', filename='image/' + professor.photo) }}" class="rounded-circle me-2" width="40" height="40" alt="">
+                                    {% else %}
+                                        <div class="avatar-placeholder me-2" style="width: 40px; height: 40px;">{{ professor.first_name[0] | upper if professor.first_name else 'P' }}</div>
+                                    {% endif %}
+                                    <div>
+                                        <strong>{{ professor.first_name }} {{ professor.last_name }}</strong>
+                                        <p class="small text-muted mb-0">{{ professor.user.email }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ professor.employee_id or 'N/A' }}</td>
+                            <td>{{ professor.department or 'N/A' }}</td>
+                            <td>{{ professor.specialization or 'N/A' }}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ url_for('admin.view_professor', id=professor.id) }}" class="btn btn-outline-primary" title="Voir">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="text-center py-4 text-muted">Aucun professeur trouvé</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock admin_content %}

@@ -1,0 +1,100 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Détails professeur - Gestion Scolaire{% endblock %}
+
+{% block admin_content %}
+<div class="py-4">
+    <div class="page-header">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('admin.list_professors') }}">Professeurs</a></li>
+                <li class="breadcrumb-item active">{{ professor.first_name }} {{ professor.last_name }}</li>
+            </ol>
+        </nav>
+    </div>
+    
+    <div class="row">
+        <div class="col-lg-4 mb-4">
+            <div class="card text-center">
+                <div class="card-body p-4">
+                    {% if professor.photo %}
+                        <img src="{{ url_for('static', filename='image/' + professor.photo) }}" class="rounded-circle mb-3" width="150" height="150" alt="Photo">
+                    {% else %}
+                        <div class="avatar-placeholder mx-auto mb-3" style="width: 150px; height: 150px; font-size: 4rem;">
+                            {{ professor.first_name[0] | upper if professor.first_name else 'P' }}
+                        </div>
+                    {% endif %}
+                    <h4>{{ professor.first_name }} {{ professor.last_name }}</h4>
+                    <p class="text-muted">{{ professor.employee_id or 'N/A' }}</p>
+                    <span class="badge bg-info">Professeur</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informations</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Email</label>
+                            <p>{{ professor.user.email }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Téléphone</label>
+                            <p>{{ professor.phone or 'N/A' }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Département</label>
+                            <p>{{ professor.department or 'N/A' }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Spécialité</label>
+                            <p>{{ professor.specialization or 'N/A' }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Bureau</label>
+                            <p>{{ professor.office or 'N/A' }}</p>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="text-muted small">Date d'embauche</label>
+                            <p>{{ professor.hire_date.strftime('%d/%m/%Y') if professor.hire_date else 'N/A' }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if professor.user.initial_password %}
+                    <div class="alert alert-info mb-0">
+                        <i class="fas fa-key me-2"></i>
+                        <strong>Mot de passe initial:</strong> 
+                        <code class="user-select-all">{{ professor.user.initial_password }}</code>
+                        <small class="d-block mt-1 text-muted">Ce mot de passe sera masqué une fois que l'utilisateur l'aura changé.</small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="fas fa-book me-2"></i>Modules enseignés</h5>
+                </div>
+                <div class="card-body">
+                    {% if professor.teaching_assignments %}
+                        <ul class="list-group list-group-flush">
+                        {% for assignment in professor.teaching_assignments %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ assignment.module.name }} - {{ assignment.classe.name if assignment.classe else 'Toutes classes' }}
+                                <span class="badge bg-primary">{{ assignment.module.hours }}h</span>
+                            </li>
+                        {% endfor %}
+                        </ul>
+                    {% else %}
+                        <p class="text-muted text-center py-3">Aucun module assigné</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock admin_content %}

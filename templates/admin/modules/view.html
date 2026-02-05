@@ -1,0 +1,128 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}{{ module.name }} - Gestion Scolaire{% endblock %}
+
+{% block admin_content %}
+<div class="py-4">
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-1">
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin.super_admin_dashboard') }}">Tableau de bord</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('admin.list_modules') }}">Modules</a></li>
+                    <li class="breadcrumb-item active">{{ module.code }}</li>
+                </ol>
+            </nav>
+            <h1><i class="fas fa-book me-2"></i>{{ module.name }}</h1>
+        </div>
+        <div>
+            <a href="{{ url_for('admin.edit_module', id=module.id) }}" class="btn btn-warning">
+                <i class="fas fa-edit me-1"></i>Modifier
+            </a>
+            <a href="{{ url_for('admin.list_modules') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Retour
+            </a>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-info-circle me-2"></i>Informations du module</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <th width="35%">Code</th>
+                            <td><span class="badge bg-secondary">{{ module.code }}</span></td>
+                        </tr>
+                        <tr>
+                            <th>Nom</th>
+                            <td>{{ module.name }}</td>
+                        </tr>
+                        <tr>
+                            <th>Description</th>
+                            <td>{{ module.description or 'Non spécifiée' }}</td>
+                        </tr>
+                        <tr>
+                            <th>Heures totales</th>
+                            <td>{{ module.total_hours }}h</td>
+                        </tr>
+                        <tr>
+                            <th>Crédits</th>
+                            <td>{{ module.credits }}</td>
+                        </tr>
+                        <tr>
+                            <th>Seuil d'absence</th>
+                            <td>{{ module.absence_threshold }}h</td>
+                        </tr>
+                        <tr>
+                            <th>Statut</th>
+                            <td>
+                                {% if module.is_active %}
+                                    <span class="badge bg-success">Actif</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Inactif</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Créé le</th>
+                            <td>{{ module.created_at.strftime('%d/%m/%Y') if module.created_at else 'N/A' }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-chalkboard-teacher me-2"></i>Enseignants assignés</h5>
+                </div>
+                <div class="card-body p-0">
+                    {% if assignments %}
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Professeur</th>
+                                    <th>Classe</th>
+                                    <th>Année</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for assignment in assignments %}
+                                <tr>
+                                    <td>
+                                        {% if assignment.professor and assignment.professor.user %}
+                                            {{ assignment.professor.user.full_name }}
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if assignment.classe %}
+                                            {{ assignment.classe.name }}
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ assignment.academic_year }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="p-4 text-center text-muted">
+                        <i class="fas fa-info-circle me-1"></i>Aucun enseignant assigné à ce module
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock admin_content %}

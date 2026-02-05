@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}{{ module.name }} - Étudiants{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-2 sidebar d-none d-lg-block">
+            <nav class="nav flex-column">
+                <a class="nav-link" href="{{ url_for('professor.dashboard') }}">
+                    <i class="fas fa-tachometer-alt"></i>Tableau de bord
+                </a>
+                <a class="nav-link" href="{{ url_for('professor.my_absences') }}">
+                    <i class="fas fa-calendar-times"></i>Mes absences
+                </a>
+                <a class="nav-link active" href="{{ url_for('professor.my_modules') }}">
+                    <i class="fas fa-book"></i>Mes modules
+                </a>
+                <a class="nav-link" href="{{ url_for('professor.my_classes') }}">
+                    <i class="fas fa-users"></i>Mes classes
+                </a>
+                <a class="nav-link" href="{{ url_for('main.profile') }}">
+                    <i class="fas fa-user"></i>Mon profil
+                </a>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-10">
+            <div class="page-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h1><i class="fas fa-book me-2"></i>{{ module.name }}</h1>
+                    <p class="text-muted">{{ module.code }} - Absences des étudiants</p>
+                </div>
+                <a href="{{ url_for('professor.my_modules') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i>Retour
+                </a>
+            </div>
+            
+            <!-- Module Info -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-primary text-white">
+                        <div class="card-body text-center">
+                            <h3>{{ module.total_hours }}h</h3>
+                            <p class="mb-0">Heures totales</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-info text-white">
+                        <div class="card-body text-center">
+                            <h3>{{ module.absence_threshold }}h</h3>
+                            <p class="mb-0">Seuil d'absence</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body text-center">
+                            <h3>{{ student_stats|length }}</h3>
+                            <p class="mb-0">Étudiants</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-white">
+                        <div class="card-body text-center">
+                            <h3>{{ student_stats|selectattr('status', 'equalto', 'warning')|list|length + student_stats|selectattr('status', 'equalto', 'exceeded')|list|length }}</h3>
+                            <p class="mb-0">En alerte</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Students Table -->
+            <div class="card">
+                <div class="card-header bg-white py-3">
+                    <h5 class="mb-0"><i class="fas fa-user-graduate me-2"></i>Liste des étudiants</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Étudiant</th>
+                                    <th>N° Étudiant</th>
+                                    <th>Heures d'absence</th>
+                                    <th>Taux</th>
+                                    <th>Statut</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for stat in student_stats %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ stat.student.first_name }} {{ stat.student.last_name }}</strong>
+                                        {% if stat.student.classe %}
+                                        <br><small class="text-muted">{{ stat.student.classe.name }}</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ stat.student.student_id or 'N/A' }}</td>
+                                    <td>{{ stat.hours }}h / {{ module.absence_threshold }}h</td>
+                                    <td>
+                                        <div class="progress" style="width: 100px;">
+                                            <div class="progress-bar {% if stat.rate >= 100 %}bg-danger{% elif stat.rate >= 50 %}bg-warning{% else %}bg-success{% endif %}" 
+                                                 style="width: {{ [stat.rate, 100] | min }}%"></div>
+                                        </div>
+                                        <small>{{ stat.rate|round(1) }}%</small>
+                                    </td>
+                                    <td>
+                                        {% if stat.status == 'exceeded' %}
+                                            <span class="badge bg-danger">Seuil dépassé</span>
+                                        {% elif stat.status == 'warning' %}
+                                            <span class="badge bg-warning">Attention</span>
+                                        {% else %}
+                                            <span class="badge bg-success">OK</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('professor.view_student', student_id=stat.student.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="6" class="text-center py-4 text-muted">
+                                        Aucun étudiant inscrit à ce module
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

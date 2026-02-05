@@ -1,0 +1,154 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Liste des utilisateurs - Gestion Scolaire{% endblock %}
+
+{% block admin_content %}
+<div class="py-4">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="fas fa-users me-2"></i>Utilisateurs</h1>
+            <p class="text-muted">Gérer tous les utilisateurs du système</p>
+        </div>
+        {% if current_user.role == 'super_admin' %}
+        <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                <i class="fas fa-plus me-1"></i>Créer
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="{{ url_for('admin.create_student') }}"><i class="fas fa-user-graduate me-2"></i>Étudiant</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('admin.create_professor') }}"><i class="fas fa-chalkboard-teacher me-2"></i>Professeur</a></li>
+                <li><a class="dropdown-item" href="{{ url_for('admin.create_staff') }}"><i class="fas fa-user-tie me-2"></i>Personnel</a></li>
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" name="search" class="form-control" placeholder="Rechercher par email..." value="{{ search }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select name="role" class="form-select">
+                        <option value="">Tous les rôles</option>
+                        {% for value, label in roles %}
+                        <option value="{{ value }}" {% if role_filter == value %}selected{% endif %}>{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-filter me-1"></i>Filtrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Users Table -->
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Utilisateur</th>
+                            <th>Email</th>
+                            <th>Rôle</th>
+                            <th>Statut</th>
+                            <th>Créé le</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users.items %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-placeholder me-2" style="width: 40px; height: 40px;">
+                                        {{ user.email[0] | upper }}
+                                    </div>
+                                    <div>
+                                        <strong>{{ user.full_name or user.email }}</strong>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ user.email }}</td>
+                            <td>
+                                {% if user.role == 'super_admin' %}
+                                    <span class="badge bg-danger">Super Admin</span>
+                                {% elif user.role == 'admin_staff' %}
+                                    <span class="badge bg-warning">Personnel</span>
+                                {% elif user.role == 'professor' %}
+                                    <span class="badge bg-info">Professeur</span>
+                                {% else %}
+                                    <span class="badge bg-success">Étudiant</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if user.is_active %}
+                                    <span class="badge bg-success">Actif</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Inactif</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ user.created_at.strftime('%d/%m/%Y') if user.created_at else 'N/A' }}</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{% if user.role == 'student' %}{{ url_for('admin.view_student', id=user.student_profile.id if user.student_profile else 0) }}{% elif user.role == 'professor' %}{{ url_for('admin.view_professor', id=user.professor_profile.id if user.professor_profile else 0) }}{% else %}#{% endif %}" class="btn btn-outline-primary" title="Voir">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    {% if user.role != 'super_admin' or current_user.id == user.id %}
+                                    <form action="{{ url_for('admin.toggle_user_status', id=user.id) }}" method="POST" class="d-inline">
+                                        <button type="submit" class="btn btn-outline-{{ 'warning' if user.is_active else 'success' }}" title="{{ 'Désactiver' if user.is_active else 'Activer' }}">
+                                            <i class="fas fa-{{ 'ban' if user.is_active else 'check' }}"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">Aucun utilisateur trouvé</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pagination -->
+    {% if users.pages > 1 %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if users.has_prev %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ users.prev_num }}&role={{ role_filter }}&search={{ search }}">Précédent</a>
+            </li>
+            {% endif %}
+            {% for page in users.iter_pages() %}
+                {% if page %}
+                <li class="page-item {% if page == users.page %}active{% endif %}">
+                    <a class="page-link" href="?page={{ page }}&role={{ role_filter }}&search={{ search }}">{{ page }}</a>
+                </li>
+                {% else %}
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+            {% endfor %}
+            {% if users.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ users.next_num }}&role={{ role_filter }}&search={{ search }}">Suivant</a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock admin_content %}

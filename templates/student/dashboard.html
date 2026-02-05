@@ -1,0 +1,183 @@
+{% extends "base.html" %}
+
+{% block title %}Tableau de bord Étudiant - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-2 sidebar d-none d-lg-block">
+            <nav class="nav flex-column">
+                <a class="nav-link active" href="{{ url_for('student.dashboard') }}">
+                    <i class="fas fa-tachometer-alt"></i>Tableau de bord
+                </a>
+                <a class="nav-link" href="{{ url_for('student.my_absences') }}">
+                    <i class="fas fa-calendar-times"></i>Mes absences
+                </a>
+                <a class="nav-link" href="{{ url_for('student.my_modules') }}">
+                    <i class="fas fa-book"></i>Mes modules
+                </a>
+                <a class="nav-link" href="{{ url_for('student.academic_info') }}">
+                    <i class="fas fa-info-circle"></i>Info académique
+                </a>
+                <a class="nav-link" href="{{ url_for('main.profile') }}">
+                    <i class="fas fa-user"></i>Mon profil
+                </a>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-10">
+            <div class="page-header">
+                <h1><i class="fas fa-user-graduate text-success me-2"></i>Mon Espace Étudiant</h1>
+                <p class="text-muted">Bienvenue, {{ current_user.full_name }}</p>
+            </div>
+            
+            <!-- Student Info Card -->
+            {% if student_profile %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            {% if student_profile.photo %}
+                                <img src="{{ url_for('static', filename='image/' + student_profile.photo) }}" class="rounded-circle" width="80" height="80" alt="Photo">
+                            {% else %}
+                                <div class="avatar-placeholder" style="width: 80px; height: 80px; font-size: 2rem;">
+                                    {{ current_user.full_name[0] | upper }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="col">
+                            <h4 class="mb-1">{{ current_user.full_name }}</h4>
+                            <p class="text-muted mb-0">
+                                <i class="fas fa-id-card me-1"></i>{{ student_profile.student_id or 'N/A' }} | 
+                                <i class="fas fa-school me-1"></i>{{ student_profile.classe.name if student_profile.classe else 'N/A' }} |
+                                <i class="fas fa-graduation-cap me-1"></i>{{ student_profile.classe.major.name if student_profile.classe and student_profile.classe.major else 'N/A' }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Stats Cards -->
+            <div class="row g-4 mb-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card primary">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value">{{ stats.total_modules }}</div>
+                                <div class="stat-label">Modules</div>
+                            </div>
+                            <i class="fas fa-book stat-icon"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card {% if stats.total_absence_hours > stats.threshold * 0.5 %}warning{% else %}success{% endif %}">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value">{{ stats.total_absence_hours }}h</div>
+                                <div class="stat-label">Total absences</div>
+                            </div>
+                            <i class="fas fa-clock stat-icon"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card {% if stats.absence_rate > 50 %}warning{% else %}info{% endif %}">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value">{{ stats.absence_rate }}%</div>
+                                <div class="stat-label">Taux d'absence</div>
+                            </div>
+                            <i class="fas fa-percentage stat-icon"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="stat-card {% if stats.remaining_hours < 3 %}warning{% else %}success{% endif %}">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <div class="stat-value">{{ stats.remaining_hours }}h</div>
+                                <div class="stat-label">Heures restantes</div>
+                            </div>
+                            <i class="fas fa-hourglass-half stat-icon"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Alerts Section -->
+            {% if alerts %}
+            <div class="alert alert-warning mb-4">
+                <h5><i class="fas fa-exclamation-triangle me-2"></i>Attention</h5>
+                <ul class="mb-0">
+                    {% for alert in alerts %}
+                    <li>{{ alert }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            
+            <div class="row g-4">
+                <!-- Module Absence Rates -->
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="mb-0"><i class="fas fa-chart-bar me-2"></i>Taux par module</h5>
+                        </div>
+                        <div class="card-body">
+                            {% for item in module_stats %}
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between mb-1">
+                                    <span>{{ item.module.name }}</span>
+                                    <span class="{% if item.rate >= 100 %}text-danger{% elif item.rate >= 50 %}text-warning{% else %}text-success{% endif %}">
+                                        {{ item.hours }}h / {{ item.module.absence_threshold }}h ({{ item.rate|round(1) }}%)
+                                    </span>
+                                </div>
+                                <div class="progress">
+                                    <div class="progress-bar {% if item.rate >= 100 %}bg-danger{% elif item.rate >= 50 %}bg-warning{% else %}bg-success{% endif %}" 
+                                         style="width: {{ [item.rate, 100] | min }}%"></div>
+                                </div>
+                            </div>
+                            {% else %}
+                            <p class="text-muted text-center py-3">Aucune donnée disponible</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Absences -->
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center py-3">
+                            <h5 class="mb-0"><i class="fas fa-calendar-times me-2"></i>Absences récentes</h5>
+                            <a href="{{ url_for('student.my_absences') }}" class="btn btn-sm btn-outline-primary">Voir tout</a>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="list-group list-group-flush">
+                                {% for absence in recent_absences %}
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ absence.module.name }}</strong>
+                                        <p class="small text-muted mb-0">{{ absence.date.strftime('%d/%m/%Y') }} - {{ absence.hours }}h</p>
+                                    </div>
+                                    {% if absence.is_justified %}
+                                        <span class="badge bg-success">Justifiée</span>
+                                    {% else %}
+                                        <span class="badge bg-danger">Non justifiée</span>
+                                    {% endif %}
+                                </div>
+                                {% else %}
+                                <div class="list-group-item text-center text-muted py-4">Aucune absence</div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

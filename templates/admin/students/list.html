@@ -1,0 +1,135 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Liste des étudiants - Gestion Scolaire{% endblock %}
+
+{% block admin_content %}
+<div class="py-4">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="fas fa-user-graduate me-2"></i>Étudiants</h1>
+            <p class="text-muted">Gérer la liste des étudiants</p>
+        </div>
+        <a href="{{ url_for('admin.create_student') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>Ajouter un étudiant
+        </a>
+    </div>
+    
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3 align-items-end">
+                <div class="col-md-4">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" name="search" class="form-control" placeholder="Rechercher..." value="{{ search }}">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select name="class_id" class="form-select">
+                        <option value="">Toutes les classes</option>
+                        {% for classe in classes %}
+                        <option value="{{ classe.id }}" {% if class_filter == classe.id %}selected{% endif %}>{{ classe.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select name="major_id" class="form-select">
+                        <option value="">Toutes les filières</option>
+                        {% for major in majors %}
+                        <option value="{{ major.id }}" {% if major_filter == major.id %}selected{% endif %}>{{ major.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-filter me-1"></i>Filtrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Students Table -->
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Étudiant</th>
+                            <th>N° Étudiant</th>
+                            <th>Classe</th>
+                            <th>Filière</th>
+                            <th>Absences</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students.items %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    {% if student.photo %}
+                                        <img src="{{ url_for('static', filename='image/' + student.photo) }}" class="rounded-circle me-2" width="40" height="40" alt="">
+                                    {% else %}
+                                        <div class="avatar-placeholder me-2" style="width: 40px; height: 40px;">{{ student.first_name[0] | upper if student.first_name else 'E' }}</div>
+                                    {% endif %}
+                                    <div>
+                                        <strong>{{ student.first_name }} {{ student.last_name }}</strong>
+                                        <p class="small text-muted mb-0">{{ student.user.email }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ student.student_id or 'N/A' }}</td>
+                            <td>{{ student.classe.name if student.classe else 'N/A' }}</td>
+                            <td>{{ student.major.name if student.major else 'N/A' }}</td>
+                            <td>
+                                {% set total_hours = student.get_total_absence_hours() %}
+                                <span class="{% if total_hours > 10 %}text-danger{% elif total_hours > 5 %}text-warning{% else %}text-success{% endif %}">
+                                    {{ total_hours }}h
+                                </span>
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ url_for('admin.view_student', id=student.id) }}" class="btn btn-outline-primary" title="Voir">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{{ url_for('admin.create_student_absence') }}?student_id={{ student.id }}" class="btn btn-outline-warning" title="Ajouter absence">
+                                        <i class="fas fa-calendar-plus"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">Aucun étudiant trouvé</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Pagination -->
+    {% if students.pages > 1 %}
+    <nav class="mt-4">
+        <ul class="pagination justify-content-center">
+            {% if students.has_prev %}
+            <li class="page-item"><a class="page-link" href="?page={{ students.prev_num }}">Précédent</a></li>
+            {% endif %}
+            {% for page in students.iter_pages() %}
+                {% if page %}
+                <li class="page-item {% if page == students.page %}active{% endif %}">
+                    <a class="page-link" href="?page={{ page }}">{{ page }}</a>
+                </li>
+                {% endif %}
+            {% endfor %}
+            {% if students.has_next %}
+            <li class="page-item"><a class="page-link" href="?page={{ students.next_num }}">Suivant</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock admin_content %}

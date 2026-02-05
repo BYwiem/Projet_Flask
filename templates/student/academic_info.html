@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Info Académique - Gestion Scolaire{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-2 sidebar d-none d-lg-block">
+            <nav class="nav flex-column">
+                <a class="nav-link" href="{{ url_for('student.dashboard') }}">
+                    <i class="fas fa-tachometer-alt"></i>Tableau de bord
+                </a>
+                <a class="nav-link" href="{{ url_for('student.my_absences') }}">
+                    <i class="fas fa-calendar-times"></i>Mes absences
+                </a>
+                <a class="nav-link" href="{{ url_for('student.my_modules') }}">
+                    <i class="fas fa-book"></i>Mes modules
+                </a>
+                <a class="nav-link active" href="{{ url_for('student.academic_info') }}">
+                    <i class="fas fa-info-circle"></i>Info académique
+                </a>
+            </nav>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="col-lg-10">
+            <div class="page-header">
+                <h1><i class="fas fa-info-circle me-2"></i>Informations Académiques</h1>
+                <p class="text-muted">Détails de votre parcours académique</p>
+            </div>
+            
+            <div class="row g-4">
+                <!-- Student Info -->
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="mb-0"><i class="fas fa-user-graduate me-2"></i>Informations personnelles</h5>
+                        </div>
+                        <div class="card-body">
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="text-muted" width="40%">Numéro étudiant</td>
+                                    <td><strong>{{ student.student_id or 'N/A' }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Nom complet</td>
+                                    <td><strong>{{ student.first_name }} {{ student.last_name }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Email</td>
+                                    <td><strong>{{ student.user.email }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Date de naissance</td>
+                                    <td><strong>{{ student.date_of_birth.strftime('%d/%m/%Y') if student.date_of_birth else 'N/A' }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Téléphone</td>
+                                    <td><strong>{{ student.phone or 'N/A' }}</strong></td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Class Info -->
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="mb-0"><i class="fas fa-users me-2"></i>Classe</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if classe %}
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="text-muted" width="40%">Classe</td>
+                                    <td><strong>{{ classe.name }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Code</td>
+                                    <td><strong>{{ classe.code }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Année académique</td>
+                                    <td><strong>{{ classe.academic_year or 'N/A' }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Semestre</td>
+                                    <td><strong>{{ student.current_semester }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Camarades de classe</td>
+                                    <td><strong>{{ classmates_count }} étudiants</strong></td>
+                                </tr>
+                            </table>
+                            {% else %}
+                            <div class="alert alert-info mb-0">
+                                <i class="fas fa-info-circle me-2"></i>Vous n'êtes pas encore assigné à une classe.
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Major Info -->
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>Filière</h5>
+                        </div>
+                        <div class="card-body">
+                            {% if major %}
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td class="text-muted" width="40%">Filière</td>
+                                    <td><strong>{{ major.name }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Code</td>
+                                    <td><strong>{{ major.code }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Description</td>
+                                    <td><strong>{{ major.description or 'N/A' }}</strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-muted">Durée</td>
+                                    <td><strong>{{ major.duration_years }} ans</strong></td>
+                                </tr>
+                            </table>
+                            {% else %}
+                            <div class="alert alert-info mb-0">
+                                <i class="fas fa-info-circle me-2"></i>Aucune filière assignée.
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Current Modules -->
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-header bg-white py-3">
+                            <h5 class="mb-0"><i class="fas fa-book me-2"></i>Modules du semestre {{ student.current_semester }}</h5>
+                        </div>
+                        <div class="card-body p-0">
+                            {% if current_modules %}
+                            <div class="list-group list-group-flush">
+                                {% for module in current_modules %}
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ module.name }}</strong>
+                                        <p class="small text-muted mb-0">{{ module.code }} - {{ module.total_hours }}h</p>
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">{{ module.credits }} crédits</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% else %}
+                            <div class="p-3">
+                                <div class="alert alert-info mb-0">
+                                    <i class="fas fa-info-circle me-2"></i>Aucun module pour ce semestre.
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "admin/admin_base.html" %}
+
+{% block title %}Liste des modules - Gestion Scolaire{% endblock %}
+
+{% block admin_content %}
+<div class="py-4">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1><i class="fas fa-book me-2"></i>Modules</h1>
+            <p class="text-muted">Gérer les modules d'enseignement</p>
+        </div>
+        <a href="{{ url_for('admin.create_module') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>Ajouter un module
+        </a>
+    </div>
+    
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Nom</th>
+                            <th>Heures</th>
+                            <th>Crédits</th>
+                            <th>Seuil absence</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for module in modules %}
+                        <tr>
+                            <td><span class="badge bg-secondary">{{ module.code }}</span></td>
+                            <td>{{ module.name }}</td>
+                            <td>{{ module.total_hours }}h</td>
+                            <td>{{ module.credits }}</td>
+                            <td>{{ module.absence_threshold }}h</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ url_for('admin.view_module', id=module.id) }}" class="btn btn-outline-primary" title="Voir"><i class="fas fa-eye"></i></a>
+                                    <a href="{{ url_for('admin.edit_module', id=module.id) }}" class="btn btn-outline-warning" title="Modifier"><i class="fas fa-edit"></i></a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-4 text-muted">Aucun module trouvé</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock admin_content %}
